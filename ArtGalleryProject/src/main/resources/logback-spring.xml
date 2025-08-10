@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!-- Rolling log file based on file size -->
+	<appender name="ROLLING_FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/artgallery.log</file>
+		<append>true</append>
+
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>logs/artgallery.%i.log</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>5</maxIndex> <!-- Keep 10 old logs -->
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>1MB</maxFileSize> <!-- Rotate after 10 MB -->
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36}:%L - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder
+			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %logger{36}:%L - %msg %n</pattern>
+		</encoder>
+	</appender>
+
+
+
+	<!-- Root logger -->
+	<root level="INFO">
+		<appender-ref ref="ROLLING_FILE" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+	<!-- App-specific debug level -->
+	<logger name="com.RESTAPI" level="DEBUG" />
+</configuration>

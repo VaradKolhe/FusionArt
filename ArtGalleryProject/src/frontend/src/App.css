@@ -1,0 +1,12 @@
+@import "tailwindcss";
+/* Background fade-in for video */
+.fade-in-bg {
+  opacity: 0;
+  animation: fadeIn 3s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
