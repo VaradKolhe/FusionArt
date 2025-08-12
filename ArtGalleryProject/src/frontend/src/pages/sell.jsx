@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import axiosInstance from "../axiosInstance";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const Sell = () => {
   const [step, setStep] = useState(1);
@@ -81,6 +81,7 @@ const Sell = () => {
 
   return (
     <div className="w-full min-h-screen mt-5 px-4 py-12 font-serif">
+      <ToastContainer position="top-right" autoClose={5000} />
       <ToastContainer position="top-right" autoClose={5000} />
       <motion.div
         initial={{ opacity: 0, y: 40 }}

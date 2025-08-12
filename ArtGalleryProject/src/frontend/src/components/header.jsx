@@ -21,11 +21,8 @@ const Header = ({ setIsWalletOpen }) => {
     navLinks.admin = "/admin";
   }
 
-  const isLoggedIn = !!token; // Use token for login check
-  // Example usage: you can use userRole to conditionally render UI
-  // e.g. const isAdmin = userRole === "ADMIN";
+  const isLoggedIn = !!token;
 
-  // Fetch username when component mounts and user is logged in
   useEffect(() => {
     const fetchUsername = async () => {
       if (isLoggedIn && !username) {
@@ -116,74 +113,70 @@ const Header = ({ setIsWalletOpen }) => {
 
         {/* Right side - Profile/Login/Wallet */}
         <div className="hidden md:flex items-center gap-4">
+          <button
+            onClick={() => setIsWalletOpen(true)}
+            className="group flex cursor-pointer items-center overflow-hidden transition-all duration-300 ease-in-out w-9 hover:w-24 bg-orange-50 rounded-full shadow-sm shadow-black"
+          >
+            {/* Wallet Icon */}
+            <div className="w-9 h-9 flex items-center justify-center rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 ml-2  text-gray-700"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-5h-4a1 1 0 00-1 1v2a1 1 0 001 1h4v-4z"
+                />
+              </svg>
+            </div>
 
+            {/* Appearing Text */}
+            <span className="whitespace-nowrap text-sm text-[#6b4c35] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              Wallet
+            </span>
+          </button>
 
-
+          <span className="border-l h-4 border-gray-400"></span>
 
           {isLoggedIn ? (
-            <div className="flex flex-row gap-3">
-              <button
-                onClick={() => setIsWalletOpen(true)}
-                className="group flex cursor-pointer items-center overflow-hidden transition-all duration-300 ease-in-out w-9 hover:w-24 bg-orange-50 rounded-full shadow-sm shadow-black"
+            <Link
+              to="/profile"
+              className="group flex items-center gap-2 overflow-hidden"
+            >
+              {/* Profile Icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5 text-gray-800"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                {/* Wallet Icon */}
-                <div className="w-9 h-9 flex items-center justify-center rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-5 h-5 ml-2  text-gray-700"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-2m4-5h-4a1 1 0 00-1 1v2a1 1 0 001 1h4v-4z"
-                    />
-                  </svg>
-                </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.29.534 6.121 1.477M15 10a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
 
-                {/* Appearing Text */}
-                <span className="whitespace-nowrap text-sm text-[#6b4c35] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Wallet
+              {/* Default Text */}
+              <span className="relative w-[150px] font-serif h-6 overflow-hidden">
+                <span className="absolute transition-all duration-300 ease-in-out group-hover:-translate-y-6 text-base font-bold text-gray-700">
+                  Hi,<span className="text-orange-900"> {username} </span>
                 </span>
-              </button>
-              <span className="border-l mt-3 h-4 border-gray-400"></span>
-              <Link
-                to="/profile"
-                className="group flex items-center gap-2 overflow-hidden"
-              >
-                {/* Profile Icon */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5 text-gray-800"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5.121 17.804A13.937 13.937 0 0112 15c2.21 0 4.29.534 6.121 1.477M15 10a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-
-                {/* Default Text */}
-                <span className="relative w-[150px] font-serif h-6 overflow-hidden">
-                  <span className="absolute transition-all duration-300 ease-in-out group-hover:-translate-y-6 text-base font-bold text-gray-700">
-                    Hi,<span className="text-orange-900"> {username} </span>
-                  </span>
-                  <span className="absolute transition-all text-base duration-300 ease-in-out translate-y-6 group-hover:translate-y-0 font-bold text-gray-700">
-                    Explore Yourself
-                  </span>
+                <span className="absolute transition-all text-base duration-300 ease-in-out translate-y-6 group-hover:translate-y-0 font-bold text-gray-700">
+                  Explore Yourself
                 </span>
-              </Link>
-            </div>
+              </span>
+            </Link>
           ) : (
             <Link to="/login">
-              <button className="hover:shadow-lg hover:shadow-gray-300 border-1 h-8 w-16 rounded-2xl px-2 text-sm text-gray-800 hover:cursor-pointer">
+              <button className="hover:shadow-lg hover:shadow-gray-300 border-1 h-8 w-16 rounded-2xl px-2 text-sm text-gray-800">
                 Login
               </button>
             </Link>

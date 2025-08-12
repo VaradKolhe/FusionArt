@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "../axiosInstance";
@@ -212,6 +214,7 @@ const Dashboard = () => {
 
   return (
     <>
+      <ToastContainer position="top-right" autoClose={5000} />
       {/* 🔹 Carousel */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}

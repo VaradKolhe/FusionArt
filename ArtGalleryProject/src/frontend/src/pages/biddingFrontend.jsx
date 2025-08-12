@@ -97,6 +97,7 @@ const BiddingFrontend = () => {
   return (
     <div className="font-serif">
       <div className="px-4 pt-6 pb-10 grid grid-cols-1 lg:flex gap-8">
+    <ToastContainer position="top-right" autoClose={5000} />
         {/* Painting Section */}
         <section className="bg-white  rounded-2xl shadow-xl w-full p-6 flex-1 flex flex-col md:w-1/3 mx-auto transition-all duration-500">
           {painting ? (

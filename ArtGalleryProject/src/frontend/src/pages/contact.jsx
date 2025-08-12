@@ -1,4 +1,6 @@
 import React from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import {
   FaEnvelope,
@@ -9,6 +11,7 @@ import {
 
 const Contact = () => (
   <div className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden ">
+    <ToastContainer position="top-right" autoClose={5000} />
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}

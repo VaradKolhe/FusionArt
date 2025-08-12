@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import {
   FaPalette,
@@ -121,6 +123,7 @@ const About = () => {
 
   return (
     <div className="relative  min-h-screen overflow-hidden px-4 sm:px-8 py-20 flex flex-col items-center">
+      <ToastContainer position="top-right" autoClose={5000} />
    
 
       <motion.div

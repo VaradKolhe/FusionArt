@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 import { motion, AnimatePresence } from "framer-motion";
@@ -117,6 +119,7 @@ const Admin = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto font-serif">
+      <ToastContainer position="top-right" autoClose={5000} />
       <h2 className="text-4xl font-bold text-center text-[#3e2e1e] mb-12 mt-10">
         Admin Dashboard
       </h2>
