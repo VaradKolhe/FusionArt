@@ -44,3 +44,5 @@ logs/*
 # Ignore all files in the image directory
 image/
 image/*
+
+.env

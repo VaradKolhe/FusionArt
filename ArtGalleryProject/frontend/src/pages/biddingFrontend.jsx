@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../axiosInstance";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Timer from "../utils/Timer";
@@ -97,7 +99,7 @@ const BiddingFrontend = () => {
   return (
     <div className="font-serif">
       <div className="px-4 pt-6 pb-10 grid grid-cols-1 lg:flex gap-8">
-    <ToastContainer position="top-right" autoClose={5000} />
+        <ToastContainer position="top-right" autoClose={5000} />
         {/* Painting Section */}
         <section className="bg-white  rounded-2xl shadow-xl w-full p-6 flex-1 flex flex-col md:w-1/3 mx-auto transition-all duration-500">
           {painting ? (
@@ -112,7 +114,7 @@ const BiddingFrontend = () => {
                   className="w-full h-80 object-cover  cursor-pointer transition-transform duration-300 group-hover:scale-105"
                   onClick={() =>
                     setFullscreenImage(
-                      `http://localhost:8085${painting.imageUrl}`
+                      `http://localhost:8085${painting.imageUrl}`,
                     )
                   }
                 />
@@ -188,8 +190,8 @@ const BiddingFrontend = () => {
                       {bids.length > 0
                         ? bids[0].bid
                         : painting.final_price > 0
-                        ? painting.final_price
-                        : painting.starting_price}
+                          ? painting.final_price
+                          : painting.starting_price}
                     </span>
                     {painting.final_price > 0 && (
                       <span className="text-purple-700">
