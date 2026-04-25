@@ -2,7 +2,7 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8085',
+  baseURL: '/api',
 });
 
 // Token Expiry Check
@@ -11,6 +11,7 @@ const isTokenExpired = (token) => {
     const decoded = jwtDecode(token);
     return decoded.exp < Date.now() / 1000;
   } catch (err) {
+    console.log(err);
     return true;
   }
 };

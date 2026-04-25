@@ -110,8 +110,8 @@ const Login = () => {
     }
 
     const url = isLogin
-      ? "http://localhost:8085/auth/login"
-      : "http://localhost:8085/auth/register";
+      ? "/auth/login"
+      : "/auth/register";
 
     const payload = isLogin
       ? {

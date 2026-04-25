@@ -109,12 +109,12 @@ const BiddingFrontend = () => {
               </h1>
               <div className="relative overflow-hidden h-1/2 rounded-t-2xl group">
                 <img
-                  src={`http://localhost:8085${painting.imageUrl}`}
+                  src={`/api${painting.imageUrl}`}
                   alt={painting.title}
                   className="w-full h-80 object-cover  cursor-pointer transition-transform duration-300 group-hover:scale-105"
                   onClick={() =>
                     setFullscreenImage(
-                      `http://localhost:8085${painting.imageUrl}`,
+                      `/api${painting.imageUrl}`,
                     )
                   }
                 />
