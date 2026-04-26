@@ -1,13 +1,6 @@
 package com.RESTAPI.ArtGalleryProject.service.OrderService;
 
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.Year;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
-import javax.naming.directory.InvalidAttributeValueException;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -27,8 +20,8 @@ import com.RESTAPI.ArtGalleryProject.repository.LoginCredRepo;
 import com.RESTAPI.ArtGalleryProject.repository.OrdersRepo;
 import com.RESTAPI.ArtGalleryProject.repository.PaintingRepo;
 import com.RESTAPI.ArtGalleryProject.repository.UserRepo;
-import com.RESTAPI.ArtGalleryProject.service.WalletService.WalletService;
 import com.RESTAPI.ArtGalleryProject.service.AwsSqsService;
+import com.RESTAPI.ArtGalleryProject.service.WalletService.WalletService;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -79,13 +72,20 @@ public class OrderServiceImpl implements OrderService {
 		Order razorpayOrder = razorpayCLient.orders.create(options);
 
 		Orders order = new Orders();
-		order.setName(request.name());
+		order.setCustomerName(request.name());
 		order.setEmail(request.email());
 		order.setAmount(request.amount());
+		order.setRazorpayId(razorpayId);
 		if (razorpayOrder != null) {
 			order.setRazorpayOrderId(razorpayOrder.get("id"));
 			order.setOrderStatus(razorpayOrder.get("status"));
 		}
+
+		logger.info("Saving order: name_len={}, email_len={}, rzpId_len={}, rzpOrderId_len={}", 
+				order.getCustomerName() != null ? order.getCustomerName().length() : 0,
+				order.getEmail() != null ? order.getEmail().length() : 0,
+				order.getRazorpayId() != null ? order.getRazorpayId().length() : 0,
+				order.getRazorpayOrderId() != null ? order.getRazorpayOrderId().length() : 0);
 
 		logger.info("createOrder finished for Razorpay Order ID: {}", order.getRazorpayOrderId());
 		return ordersRepository.save(order);
@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
 			com.RESTAPI.ArtGalleryProject.DTO.NotificationEvent event = com.RESTAPI.ArtGalleryProject.DTO.NotificationEvent.builder()
 					.type("PAYMENT_SUCCESS")
 					.recipientEmail(order.getEmail())
-					.recipientName(order.getName())
+					.recipientName(order.getCustomerName())
 					.subject("✅ Payment Received - Fusion Art Gallery")
 					.data(Map.of(
 							"orderId", order.getOrderId(),
@@ -181,14 +181,14 @@ public class OrderServiceImpl implements OrderService {
 
 			// Create order record
 			Orders order = new Orders();
-			order.setName(buyer.getName());
+			order.setCustomerName(buyer.getName());
 			order.setEmail(email);
 			order.setAmount(paintingPrice);
 			order.setOrderStatus("PAID_WALLET");
 			savedOrder = ordersRepository.save(order);
 		} else {
 			Orders order = new Orders();
-			order.setName(buyer.getName());
+			order.setCustomerName(buyer.getName());
 			order.setAmount(amount);
 			order.setEmail(email);
 			order.setOrderStatus("PENDING_COD");

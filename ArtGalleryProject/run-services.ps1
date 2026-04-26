@@ -17,11 +17,23 @@ Write-Host "Performing initial port cleanup..." -ForegroundColor Cyan
 Stop-PortProcess $backendPort
 Stop-PortProcess $frontendPort
 
-# 2. Check for environment variables
+# 2. Load and Check for environment variables
+$dotenvPath = Join-Path $rootPath "backend\.env"
+if (Test-Path $dotenvPath) {
+    Write-Host "Loading environment variables from $dotenvPath..." -ForegroundColor Gray
+    Get-Content $dotenvPath | ForEach-Object {
+        $line = $_.Trim()
+        if ($line -and -not $line.StartsWith("#") -and $line.Contains("=")) {
+            $name, $value = $line -split '=', 2
+            [System.Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim(), [System.EnvironmentVariableTarget]::Process)
+        }
+    }
+}
+
 $requiredVars = @("RAZOR_PAY_KEY", "RAZOR_PAY_SECRET", "EMAIL_USERNAME", "EMAIL_PASSWORD")
 $missingVars = @()
 foreach ($var in $requiredVars) {
-    if (-not (Get-Item "Env:$var" -ErrorAction SilentlyContinue)) { $missingVars += $var }
+    if (-not (Get-ChildItem "Env:$var" -ErrorAction SilentlyContinue)) { $missingVars += $var }
 }
 
 if ($missingVars.Count -gt 0) {

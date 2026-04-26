@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'FusionArt Async Stack: SQS and Lambda for Notifications'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: FusionArt
+  LambdaExecutionRoleArn:
+    Type: String
+  PrivateAppSubnet1:
+    Type: String
+  PrivateAppSubnet2:
+    Type: String
+  ASGSecurityGroupId: # Using same SG for simplicity or dedicated
+    Type: String
+
+Resources:
+  # SQS Queue
+  NotificationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${ProjectName}-Notification-Queue
+      VisibilityTimeout: 300 # 5 minutes
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt NotificationDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  NotificationDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${ProjectName}-Notification-DLQ
+
+  # Notification Worker Lambda
+  NotificationWorkerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${ProjectName}-Notification-Worker
+      Handler: index.handler
+      Role: !Ref LambdaExecutionRoleArn
+      Runtime: nodejs18.x
+      Timeout: 60
+      MemorySize: 128
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref ASGSecurityGroupId
+        SubnetIds:
+          - !Ref PrivateAppSubnet1
+          - !Ref PrivateAppSubnet2
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            for (const record of event.Records) {
+              const body = JSON.parse(record.body);
+              console.log('Processing notification:', body);
+              // Notification logic here
+            }
+            return { statusCode: 200 };
+          };
+      Environment:
+        Variables:
+          PROJECT_NAME: !Ref ProjectName
+
+  # Lambda Event Source Mapping (SQS -> Lambda)
+  NotificationEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: !GetAtt NotificationQueue.Arn
+      FunctionName: !Ref NotificationWorkerLambda
+
+Outputs:
+  QueueUrl:
+    Value: !Ref NotificationQueue
+    Export:
+      Name: !Sub ${ProjectName}-QueueUrl
+  QueueArn:
+    Value: !GetAtt NotificationQueue.Arn
+    Export:
+      Name: !Sub ${ProjectName}-QueueArn

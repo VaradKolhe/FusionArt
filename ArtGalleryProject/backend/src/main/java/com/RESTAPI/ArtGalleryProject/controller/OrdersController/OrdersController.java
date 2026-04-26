@@ -34,11 +34,6 @@ public class OrdersController {
 	@Autowired
 	private OrderService orderService;
 
-	@GetMapping("/orders")
-	public String ordersPage() {
-		return "orders";
-	}
-
 	@PostMapping(value = "/createOrder", produces = "application/json")
 	@ResponseBody
 	public ResponseEntity<?> createOrder(@RequestBody OrderRequest request) throws RazorpayException {
@@ -52,7 +47,7 @@ public class OrdersController {
 	public String paymentCallback(@RequestParam Map<String, String> response) {
 		orderService.updateStatusPayment(response);
 		logger.info("paymentCallback finished.");
-		return "success";
+		return "redirect:http://localhost:5173/payment-success";
 	}
 
 	@PostMapping("/paymentCallbackCodOrWallet")

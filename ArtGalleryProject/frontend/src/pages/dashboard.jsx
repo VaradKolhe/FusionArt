@@ -168,7 +168,7 @@ const Dashboard = () => {
 
   //     <div className="w-full md:w-1/2 h-64 md:h-full">
   //       <img
-  //         src={`http://localhost:8085${data.imageUrl}`}
+  //         src={`${import.meta.env.VITE_CDN_URL || '/api'}${data.imageUrl}`}
   //         alt={data.title}
   //         className="w-full h-full object-cover"
   //       />

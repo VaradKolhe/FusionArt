@@ -194,7 +194,7 @@ public class BidServiceImpl implements BidService {
 									"Seller for painting not found id: " + painting.getPaintingId()));
 
 					Orders order = new Orders();
-					order.setName(user.getName());
+					order.setCustomerName(user.getName());
 					order.setEmail(userCredentials.getEmail());
 					order.setAmount(highestBidder.getBidAmount());
 					order.setOrderStatus("PAID_AUCTION");

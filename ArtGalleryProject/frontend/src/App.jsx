@@ -10,6 +10,8 @@ import Sell from "./pages/sell";
 import Discover from "./pages/discover";
 import Shop from "./pages/shop";
 import BiddingFrontend from "./pages/biddingFrontend";
+import Orders from "./pages/orders";
+import PaymentSuccess from "./pages/paymentSuccess";
 import Admin from "./pages/admin";
 import ProfilePage from "./components/ProfilePage";
 import { isTokenExpired, logoutUser } from './axiosInstance';
@@ -71,7 +73,14 @@ const router = createBrowserRouter([
         path: "/contact",
         element: <Contact />,
       },
-
+      {
+        path: "/orders",
+        element: <Orders />,
+      },
+      {
+        path: "/payment-success",
+        element: <PaymentSuccess />,
+      },
       {
         path: "/biddingFrontend/:paintingId", // Dynamic route with paintingId
         element: <BiddingFrontend />,

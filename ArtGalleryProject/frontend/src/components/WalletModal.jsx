@@ -205,7 +205,7 @@ const WalletModal = ({ isOpen, onClose }) => {
     if (!token) return;
 
     try {
-      const res = await axiosInstance.get(`/api/wallet`);
+      const res = await axiosInstance.get(`/wallet`);
       const getBalance = parseFloat(res.data.balance || 0);
       setRawBalance(getBalance);
       setBalance(`₹${getBalance.toFixed(2)}`);
@@ -223,7 +223,7 @@ const WalletModal = ({ isOpen, onClose }) => {
   }, [isOpen, token, fetchBalance]);
 
   const handleSetAmount = useCallback(() => {
-    window.location.href = "/api/orders";
+    window.location.href = "/orders";
   }, []);
 
   const handleWithdraw = useCallback(() => {

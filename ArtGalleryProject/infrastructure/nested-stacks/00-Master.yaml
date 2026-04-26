@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'FusionArt Master Stack: Pure Cloud Mode'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: FusionArt
+  TemplateBucket:
+    Type: String
+    Default: fusionart-auction-shop-34679812
+  DBUser:
+    Type: String
+    Default: admin
+  DBPassword:
+    Type: String
+    NoEcho: true
+
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/01-Network.yaml
+      Parameters:
+        ProjectName: !Ref ProjectName
+
+  SecurityStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/02-Security.yaml
+      Parameters:
+        ProjectName: !Ref ProjectName
+        VpcId: !GetAtt NetworkStack.Outputs.VpcId
+
+  DataStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/03-Data.yaml
+      Parameters:
+        ProjectName: !Ref ProjectName
+        PrivateDataSubnet1: !GetAtt NetworkStack.Outputs.PrivateDataSubnet1
+        PrivateDataSubnet2: !GetAtt NetworkStack.Outputs.PrivateDataSubnet2
+        RDSSecurityGroupId: !GetAtt SecurityStack.Outputs.RDSSecurityGroupId
+        RedisSecurityGroupId: !GetAtt SecurityStack.Outputs.RedisSecurityGroupId
+        DBUser: !Ref DBUser
+        DBPassword: !Ref DBPassword
+
+  AsyncStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/04-Async.yaml
+      Parameters:
+        ProjectName: !Ref ProjectName
+        LambdaExecutionRoleArn: !GetAtt SecurityStack.Outputs.LambdaExecutionRoleArn
+        PrivateAppSubnet1: !GetAtt NetworkStack.Outputs.PrivateAppSubnet1
+        PrivateAppSubnet2: !GetAtt NetworkStack.Outputs.PrivateAppSubnet2
+        ASGSecurityGroupId: !GetAtt SecurityStack.Outputs.ASGSecurityGroupId
+
+  ComputeStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/05-Compute.yaml
+      Parameters:
+        ProjectName: !Ref ProjectName
+        VpcId: !GetAtt NetworkStack.Outputs.VpcId
+        PublicSubnet1: !GetAtt NetworkStack.Outputs.PublicSubnet1
+        PublicSubnet2: !GetAtt NetworkStack.Outputs.PublicSubnet2
+        PrivateAppSubnet1: !GetAtt NetworkStack.Outputs.PrivateAppSubnet1
+        PrivateAppSubnet2: !GetAtt NetworkStack.Outputs.PrivateAppSubnet2
+        ALBSecurityGroupId: !GetAtt SecurityStack.Outputs.ALBSecurityGroupId
+        ASGSecurityGroupId: !GetAtt SecurityStack.Outputs.ASGSecurityGroupId
+        EC2InstanceProfile: !GetAtt SecurityStack.Outputs.EC2InstanceProfile
+
+  FrontendStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/06-Frontend.yaml
+      Parameters:
+        ProjectName: !Ref ProjectName
+        ALBDnsName: !GetAtt ComputeStack.Outputs.ALBDnsName
+
+  CICDStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/07-CICD.yaml
+      Parameters:
+        ProjectName: !Ref ProjectName
+        ASGName: !Sub ${ProjectName}-ASG
+        FrontendBucketName: !GetAtt FrontendStack.Outputs.S3BucketName
+
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt FrontendStack.Outputs.CloudFrontDomainName
+  RepoCloneUrl:
+    Value: !GetAtt CICDStack.Outputs.RepoCloneUrlHttp

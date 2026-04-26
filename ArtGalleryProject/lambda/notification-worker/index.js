@@ -51,7 +51,6 @@ exports.handler = async (event) => {
 
         } catch (error) {
             console.error("Error processing record:", error);
-            // Optionally re-throw to keep in SQS (DLQ)
         }
     }
 };

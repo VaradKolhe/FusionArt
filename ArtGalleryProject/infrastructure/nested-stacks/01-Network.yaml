@@ -1,0 +1,206 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'FusionArt Network Stack: VPC, Subnets, Gateways, and Route Tables'
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: FusionArt
+    Description: Name of the project used for tagging
+
+  VpcCIDR:
+    Type: String
+    Default: 10.0.0.0/16
+
+  PublicSubnet1CIDR:
+    Type: String
+    Default: 10.0.1.0/24
+  PublicSubnet2CIDR:
+    Type: String
+    Default: 10.0.2.0/24
+
+  PrivateAppSubnet1CIDR:
+    Type: String
+    Default: 10.0.11.0/24
+  PrivateAppSubnet2CIDR:
+    Type: String
+    Default: 10.0.12.0/24
+
+  PrivateDataSubnet1CIDR:
+    Type: String
+    Default: 10.0.21.0/24
+  PrivateDataSubnet2CIDR:
+    Type: String
+    Default: 10.0.22.0/24
+
+Resources:
+  # VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-VPC
+
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-IGW
+
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # Public Subnets (AZ1 & AZ2)
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Public-Subnet-1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Public-Subnet-2
+
+  # Private App Subnets (AZ1 & AZ2)
+  PrivateAppSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PrivateAppSubnet1CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Private-App-Subnet-1
+
+  PrivateAppSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PrivateAppSubnet2CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Private-App-Subnet-2
+
+  # Private Data Subnets (AZ1 & AZ2)
+  PrivateDataSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PrivateDataSubnet1CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Private-Data-Subnet-1
+
+  PrivateDataSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PrivateDataSubnet2CIDR
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Private-Data-Subnet-2
+
+  # Public Route Table (Used for everything to save cost)
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Public-RT
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  # Route Table Associations (All subnets use the Public Route Table to avoid NAT Gateway costs)
+  PublicSubnet1Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+...
+  PrivateAppSubnet1Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateAppSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateAppSubnet2Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateAppSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateDataSubnet1Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateDataSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateDataSubnet2Association:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateDataSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+Outputs:
+  VpcId:
+    Description: VPC ID
+    Value: !Ref VPC
+    Export:
+      Name: !Sub ${ProjectName}-VpcId
+
+  PublicSubnet1:
+    Value: !Ref PublicSubnet1
+    Export:
+      Name: !Sub ${ProjectName}-PublicSubnet1
+  PublicSubnet2:
+    Value: !Ref PublicSubnet2
+    Export:
+      Name: !Sub ${ProjectName}-PublicSubnet2
+
+  PrivateAppSubnet1:
+    Value: !Ref PrivateAppSubnet1
+    Export:
+      Name: !Sub ${ProjectName}-PrivateAppSubnet1
+  PrivateAppSubnet2:
+    Value: !Ref PrivateAppSubnet2
+    Export:
+      Name: !Sub ${ProjectName}-PrivateAppSubnet2
+
+  PrivateDataSubnet1:
+    Value: !Ref PrivateDataSubnet1
+    Export:
+      Name: !Sub ${ProjectName}-PrivateDataSubnet1
+  PrivateDataSubnet2:
+    Value: !Ref PrivateDataSubnet2
+    Export:
+      Name: !Sub ${ProjectName}-PrivateDataSubnet2

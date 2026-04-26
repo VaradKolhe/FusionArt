@@ -51,6 +51,8 @@ spring:
 
 server:
   port: ${PORT:8085}
+  servlet:
+    context-path: /api
 
 # Application Specific Configurations
 app:
