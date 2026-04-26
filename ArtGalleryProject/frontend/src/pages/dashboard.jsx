@@ -100,18 +100,31 @@ const Dashboard = () => {
   const fetchPaintings = async (page = 0) => {
     try {
       const res = await axiosInstance.get(`/auctions?pageNo=${page}`);
-      const data = res.data.content || res.data;
+      
+      // Validate response data structure
+      const data = res.data && Array.isArray(res.data.content) 
+        ? res.data.content 
+        : Array.isArray(res.data) 
+          ? res.data 
+          : [];
+          
       setPaintings(data);
 
-      // Check if next page has paintings
-      const nextRes = await axiosInstance.get(`/auctions?pageNo=${page + 1}`);
-      const nextData = nextRes.data.content || nextRes.data;
-      setHasNextPage(Array.isArray(nextData) ? nextData.length > 0 : false);
+      // Determine if there is a next page from the response metadata
+      if (res.data && typeof res.data.last !== 'undefined') {
+        setHasNextPage(!res.data.last);
+      } else if (res.data && typeof res.data.totalPages !== 'undefined') {
+        setHasNextPage(page + 1 < res.data.totalPages);
+      } else {
+        // Fallback or if it's just a raw array
+        setHasNextPage(false);
+      }
 
       // Use first 3 unsold paintings for carousel
       const unsold = data.filter((p) => !p.isSold);
       setCarouselItems(unsold.slice(0, 3));
     } catch (err) {
+      console.error("Error fetching paintings:", err);
       setPaintings([]);
       setHasNextPage(false);
     }
@@ -191,7 +204,7 @@ const Dashboard = () => {
         {/* Image Section */}
         <div className="relative w-full md:w-1/2 h-[890px] md:h-auto">
           <img
-            src={`/api${data.imageUrl}`}
+            src={`${import.meta.env.VITE_CDN_URL || '/api'}${data.imageUrl}`}
             alt={data.title}
             className="w-full h-full object-cover"
           />
@@ -206,9 +219,6 @@ const Dashboard = () => {
       </div>
     );
   };
-
-  console.log(paintings);
-  console.log(typeof paintings);
 
   const upcomingAuctions = paintings.filter((p) => !p.isSold);
 
@@ -262,7 +272,7 @@ const Dashboard = () => {
                 className="flex hover:scale-105 bg-[#f8f5f0] duration-500 hover:shadow-2xl hover:shadow-black rounded-2xl cursor-pointer gap-4"
               >
                 <img
-                  src={`/api${auction.imageUrl}`}
+                  src={`${import.meta.env.VITE_CDN_URL || '/api'}${auction.imageUrl}`}
                   alt={auction.title}
                   className="w-32 h-32 object-cover rounded-l-2xl"
                 />

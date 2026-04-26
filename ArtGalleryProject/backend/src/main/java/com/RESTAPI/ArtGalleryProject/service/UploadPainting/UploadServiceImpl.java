@@ -17,6 +17,11 @@ import com.RESTAPI.ArtGalleryProject.DTO.UploadPainting.UploadPaintingRequest;
 import com.RESTAPI.ArtGalleryProject.Entity.UnverifiedPainting;
 import com.RESTAPI.ArtGalleryProject.repository.UnverifiedPaintingRepo;
 
+import org.springframework.beans.factory.annotation.Value;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
 @Service
 public class UploadServiceImpl implements UploadService {
 
@@ -25,10 +30,19 @@ public class UploadServiceImpl implements UploadService {
     @Autowired
     private UnverifiedPaintingRepo unverifiedRepo;
 
-	@Override
-	public String uploadPainting(long userId, String path, UploadPaintingRequest request) throws IOException {
-		logger.info("uploadPainting started.");
-		MultipartFile file = request.file();
+    @Autowired(required = false)
+    private S3Client s3Client;
+
+    @Value("${app.image.s3-bucket:}")
+    private String bucketName;
+
+    @Value("${app.image.cdn-url:}")
+    private String cdnUrl;
+
+    @Override
+    public String uploadPainting(long userId, String path, UploadPaintingRequest request) throws IOException {
+        logger.info("uploadPainting started.");
+        MultipartFile file = request.file();
 
         if (file.getSize() > 5 * 1024 * 1024) {
             logger.info("uploadPainting finished.");
@@ -37,14 +51,32 @@ public class UploadServiceImpl implements UploadService {
 
         String name = file.getOriginalFilename();
         String randomUID = UUID.randomUUID().toString();
-        name = randomUID.concat(name.substring(name.lastIndexOf(".")));
+        String extension = name.substring(name.lastIndexOf("."));
+        String fileName = randomUID.concat(extension);
 
-        String filepath = path + "/" + name;
+        String imageUrl;
 
-        File f = new File(path);
-        if (!f.exists()) f.mkdir();
+        if (bucketName != null && !bucketName.isEmpty() && s3Client != null) {
+            logger.info("Uploading to S3 bucket: {}", bucketName);
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .contentType(file.getContentType())
+                    .build();
 
-        Files.copy(file.getInputStream(), Paths.get(filepath));
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            
+            imageUrl = (cdnUrl != null && !cdnUrl.isEmpty()) 
+                       ? cdnUrl + "/" + fileName 
+                       : "/" + fileName; // Default to key if no CDN
+        } else {
+            logger.info("Uploading to local path: {}", path);
+            String filepath = path + "/" + fileName;
+            File f = new File(path);
+            if (!f.exists()) f.mkdirs();
+            Files.copy(file.getInputStream(), Paths.get(filepath));
+            imageUrl = "/image/" + fileName;
+        }
 
         UnverifiedPainting painting = new UnverifiedPainting();
         painting.setTitle(request.title());
@@ -54,7 +86,7 @@ public class UploadServiceImpl implements UploadService {
         painting.setStartingPrice(request.price());
         painting.setSellerId(userId);
         painting.setForAuction(request.isForAuction());
-        painting.setImageUrl("/image/" + name);
+        painting.setImageUrl(imageUrl);
 
         unverifiedRepo.save(painting);
         logger.info("uploadPainting finished.");

@@ -4,3 +4,7 @@
 /ArtGalleryProject/.idea
 *.log
 /.github
+
+/ArtGalleryProject/.vscode
+/ArtGalleryProject/documentation
+/ArtGalleryProject/GEMINI.md

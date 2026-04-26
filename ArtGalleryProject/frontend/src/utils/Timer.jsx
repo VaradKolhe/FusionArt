@@ -4,6 +4,7 @@ import axiosInstance from '../axiosInstance';
 const Timer = ({ setAuctionLive }) => {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [auctionMode, setAuctionMode] = useState("");
+  const [isLiveLocal, setIsLiveLocal] = useState(null);
 
   useEffect(() => {
     const calculateTime = () => {
@@ -11,7 +12,7 @@ const Timer = ({ setAuctionLive }) => {
       const currentDay = now.getDay() === 0 ? 7 : now.getDay();
 
       const auctionStart = new Date(now);
-      auctionStart.setDate(now.getDate() - currentDay + 4); //  day(sunday:0  and saturday:6)
+      auctionStart.setDate(now.getDate() - currentDay + 4); 
       auctionStart.setHours(11, 0, 0, 0);
 
       const auctionEndCheck = new Date(auctionStart);
@@ -23,21 +24,30 @@ const Timer = ({ setAuctionLive }) => {
       const auctionEnd = new Date(auctionStart);
       auctionEnd.setDate(auctionStart.getDate() + 2);
 
-      let target, mode;
+      let target, mode, live;
 
       if (now.getTime() >= auctionStart.getTime() && now.getTime() < auctionEnd.getTime()) {
         target = auctionEnd;
         mode = "Auction ends in";
-        setAuctionLive(true);
-        axiosInstance.get('/auctions/live');
+        live = true;
       } else {
         target = auctionStart;
         mode = "Auction starts in";
-        setAuctionLive(false);
-        axiosInstance.get('/auctions/upcoming');
+        live = false;
       }
       
       setAuctionMode(mode);
+
+      // Only update parent state and call API if the status has actually changed
+      if (live !== isLiveLocal) {
+        setIsLiveLocal(live);
+        setAuctionLive(live);
+        if (live) {
+          axiosInstance.get('/auctions/live').catch(err => console.error("Error setting auction live:", err));
+        } else {
+          axiosInstance.get('/auctions/upcoming').catch(err => console.error("Error setting auction upcoming:", err));
+        }
+      }
 
       const diff = target.getTime() - now.getTime();
       const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -51,7 +61,7 @@ const Timer = ({ setAuctionLive }) => {
     const timerId = setInterval(calculateTime, 1000);
 
     return () => clearInterval(timerId);
-  }, [setAuctionLive]);
+  }, [setAuctionLive, isLiveLocal]);
 
   return (
     <div className="flex flex-col items-center mt-2">

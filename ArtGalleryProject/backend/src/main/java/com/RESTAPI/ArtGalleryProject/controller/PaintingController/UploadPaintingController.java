@@ -29,7 +29,7 @@ public class UploadPaintingController {
 	@Autowired
 	private UploadService service;
 
-	@Value("${image.path}")
+	@Value("${app.image.path}")
 	private String path;
 
 	@PostMapping(value = "/upload-painting", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

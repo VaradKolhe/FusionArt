@@ -41,18 +41,20 @@ const Admin = () => {
   const fetchUnverifiedPaintings = async () => {
     try {
       const res = await axiosInstance.get("/admin/paintings/unverified");
-      setPaintings(res.data);
+      setPaintings(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching unverified paintings", err);
+      setPaintings([]);
     }
   };
 
   const fetchWithdrawalRequests = async () => {
     try {
       const res = await axiosInstance.get("/admin/withdrawals/pending");
-      setWithdrawalRequests(res.data);
+      setWithdrawalRequests(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Error fetching withdrawal requests", err);
+      setWithdrawalRequests([]);
     }
   };
 
@@ -185,13 +187,11 @@ const Admin = () => {
                   {painting.imageUrl && (
                     <div className="relative overflow-hidden h-1/2 rounded-t-md group group">
                       <img
-                        src={`/api${painting.imageUrl}`}
+                        src={`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`}
                         alt={painting.title}
                         className="w-full h-80 object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105"
                         onClick={() =>
-                          setFullscreenImage(
-                            `/api${painting.imageUrl}`
-                          )
+                          setFullscreenImage(`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`)
                         }
                       />
 

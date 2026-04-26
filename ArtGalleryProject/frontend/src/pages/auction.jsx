@@ -42,13 +42,26 @@ const Auction = () => {
   const fetchPaintings = async (page = 0) => {
     try {
       const res = await axiosInstance.get(`/auctions?pageNo=${page}`);
-      const data = res.data.content || res.data;
+      
+      // Validate response data structure
+      const data = res.data && Array.isArray(res.data.content) 
+        ? res.data.content 
+        : Array.isArray(res.data) 
+          ? res.data 
+          : [];
+          
       setPaintings(data);
-      // Check if next page has paintings
-      const nextRes = await axiosInstance.get(`/auctions?pageNo=${page + 1}`);
-      const nextData = nextRes.data.content || nextRes.data;
-      setHasNextPage(Array.isArray(nextData) ? nextData.length > 0 : false);
+
+      // Determine if there is a next page from the response metadata
+      if (res.data && typeof res.data.last !== 'undefined') {
+        setHasNextPage(!res.data.last);
+      } else if (res.data && typeof res.data.totalPages !== 'undefined') {
+        setHasNextPage(page + 1 < res.data.totalPages);
+      } else {
+        setHasNextPage(false);
+      }
     } catch (err) {
+      console.error("Failed to fetch paintings:", err);
       setPaintings([]);
       setHasNextPage(false);
     }
@@ -74,13 +87,11 @@ const Auction = () => {
               {painting.imageUrl && (
                 <div className="relative overflow-hidden h-1/2 rounded-t-md group">
                   <img
-                    src={`/api${painting.imageUrl}`}
+                    src={`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`}
                     alt={painting.title}
                     className="w-full h-80 object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105"
                     onClick={() =>
-                      setFullscreenImage(
-                        `/api${painting.imageUrl}`
-                      )
+                      setFullscreenImage(`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`)
                     }
                   />
 
