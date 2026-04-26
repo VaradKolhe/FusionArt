@@ -73,8 +73,8 @@ Outputs:
   QueueUrl:
     Value: !Ref NotificationQueue
     Export:
-      Name: !Sub ${ProjectName}-QueueUrl
+      Name: !Sub ${AWS::StackName}-QueueUrl
   QueueArn:
     Value: !GetAtt NotificationQueue.Arn
     Export:
-      Name: !Sub ${ProjectName}-QueueArn
+      Name: !Sub ${AWS::StackName}-QueueArn

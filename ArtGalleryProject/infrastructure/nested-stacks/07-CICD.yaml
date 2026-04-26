@@ -1,56 +1,85 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'FusionArt CI/CD Stack: CodePipeline, CodeBuild, and CodeDeploy'
+Description: 'FusionArt CI/CD Stack: Complete Pipeline with CodeDeploy'
 
 Parameters:
   ProjectName:
     Type: String
-    Default: FusionArt
   ASGName:
     Type: String
   FrontendBucketName:
     Type: String
 
 Resources:
-  # CodeCommit Repository
   Repo:
     Type: AWS::CodeCommit::Repository
     Properties:
       RepositoryName: !Ref ProjectName
-      RepositoryDescription: Source code for FusionArt project
 
-  # Artifact S3 Bucket
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${ProjectName}-artifacts-${AWS::AccountId}
 
-  # IAM Roles for CI/CD
+  # CodeDeploy Resources
+  DeployApp:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: !Sub ${ProjectName}-App
+      ComputePlatform: Server
+
+  DeployGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref DeployApp
+      DeploymentGroupName: !Sub ${ProjectName}-DeployGroup
+      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
+      AutoScalingGroups:
+        - !Ref ASGName
+      DeploymentConfigName: CodeDeployDefault.OneAtATime
+      DeploymentStyle:
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+        DeploymentType: IN_PLACE
+
+  # IAM Roles
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2010-09-09'
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
               Service: [codebuild.amazonaws.com]
             Action: ['sts:AssumeRole']
-      Policies:
-        - PolicyName: CodeBuildPolicy
-          PolicyDocument:
-            Version: '2010-09-09'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                  - 's3:GetObject'
-                  - 's3:PutObject'
-                  - 's3:ListBucket'
-                Resource: '*'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess # For student project speed, tighten in production
 
-  # CodeBuild Project
+  CodeDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [codedeploy.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [codepipeline.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
   BuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -64,28 +93,7 @@ Resources:
         Image: aws/codebuild/amazonlinux2-x86_64-standard:4.0
       Source:
         Type: CODEPIPELINE
-        BuildSpec: |
-          version: 0.2
-          phases:
-            install:
-              runtime-versions:
-                java: corretto17
-                nodejs: 18
-            build:
-              commands:
-                - echo Building Backend...
-                - cd backend && ./mvnw clean package -DskipTests
-                - cd ..
-                - echo Building Frontend...
-                - cd frontend && npm install && npm run build
-          artifacts:
-            files:
-              - 'backend/target/*.jar'
-              - 'frontend/dist/**/*'
-              - 'appspec.yml'
-              - 'scripts/**/*'
 
-  # CodePipeline
   Pipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -98,58 +106,27 @@ Resources:
         - Name: Source
           Actions:
             - Name: SourceAction
-              ActionTypeId:
-                Category: Source
-                Owner: AWS
-                Provider: CodeCommit
-                Version: '1'
-              OutputArtifacts:
-                - Name: SourceArtifact
-              Configuration:
-                RepositoryName: !Ref Repo
-                BranchName: main
+              ActionTypeId: {Category: Source, Owner: AWS, Provider: CodeCommit, Version: '1'}
+              OutputArtifacts: [{Name: SourceArtifact}]
+              Configuration: {RepositoryName: !Ref Repo, BranchName: main}
         - Name: Build
           Actions:
             - Name: BuildAction
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: '1'
-              InputArtifacts:
-                - Name: SourceArtifact
-              OutputArtifacts:
-                - Name: BuildArtifact
-              Configuration:
-                ProjectName: !Ref BuildProject
-
-  CodePipelineRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2010-09-09'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: [codepipeline.amazonaws.com]
-            Action: ['sts:AssumeRole']
-      Policies:
-        - PolicyName: CodePipelinePolicy
-          PolicyDocument:
-            Version: '2010-09-09'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'codecommit:GetBranch'
-                  - 'codecommit:GetCommit'
-                  - 'codecommit:UploadArchive'
-                  - 'codecommit:GetUploadArchiveStatus'
-                  - 'codebuild:BatchGetBuilds'
-                  - 'codebuild:StartBuild'
-                  - 's3:GetObject'
-                  - 's3:PutObject'
-                Resource: '*'
+              ActionTypeId: {Category: Build, Owner: AWS, Provider: CodeBuild, Version: '1'}
+              InputArtifacts: [{Name: SourceArtifact}]
+              OutputArtifacts: [{Name: BuildArtifact}]
+              Configuration: {ProjectName: !Ref BuildProject}
+        - Name: Deploy
+          Actions:
+            - Name: DeployBackend
+              ActionTypeId: {Category: Deploy, Owner: AWS, Provider: CodeDeploy, Version: '1'}
+              InputArtifacts: [{Name: BuildArtifact}]
+              Configuration: {ApplicationName: !Ref DeployApp, DeploymentGroupName: !Ref DeployGroup}
+            - Name: DeployFrontend
+              ActionTypeId: {Category: Deploy, Owner: AWS, Provider: S3, Version: '1'}
+              InputArtifacts: [{Name: BuildArtifact}]
+              Configuration: {BucketName: !Ref FrontendBucketName, Extract: true}
 
 Outputs:
-  RepoCloneUrlHttp:
+  RepoCloneUrl:
     Value: !GetAtt Repo.CloneUrlHttp

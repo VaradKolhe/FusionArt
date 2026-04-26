@@ -83,8 +83,8 @@ Outputs:
   RDSEndpoint:
     Value: !GetAtt RDSInstance.Endpoint.Address
     Export:
-      Name: !Sub ${ProjectName}-RDSEndpoint
+      Name: !Sub ${AWS::StackName}-RDSEndpoint
   RedisEndpoint:
     Value: !GetAtt RedisCluster.RedisEndpoint.Address
     Export:
-      Name: !Sub ${ProjectName}-RedisEndpoint
+      Name: !Sub ${AWS::StackName}-RedisEndpoint

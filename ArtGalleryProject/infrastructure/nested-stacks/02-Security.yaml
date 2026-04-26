@@ -14,18 +14,20 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2010-09-09'
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              Service: [ec2.amazonaws.com]
-            Action: ['sts:AssumeRole']
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
       Policies:
         - PolicyName: FusionArtAppPolicy
           PolicyDocument:
-            Version: '2010-09-09'
+            Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
@@ -42,36 +44,37 @@ Resources:
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      Roles: [!Ref EC2InstanceRole]
+      Path: /
+      Roles:
+        - !Ref EC2InstanceRole
 
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2010-09-09'
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
-              Service: [lambda.amazonaws.com]
-            Action: ['sts:AssumeRole']
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
 
   # Security Groups
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP/HTTPS access to ALB
+      GroupDescription: Enable HTTP access to ALB
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
@@ -123,24 +126,24 @@ Outputs:
   EC2InstanceProfile:
     Value: !Ref EC2InstanceProfile
     Export:
-      Name: !Sub ${ProjectName}-EC2InstanceProfile
+      Name: !Sub ${AWS::StackName}-EC2InstanceProfile
   LambdaExecutionRoleArn:
     Value: !GetAtt LambdaExecutionRole.Arn
     Export:
-      Name: !Sub ${ProjectName}-LambdaExecutionRoleArn
+      Name: !Sub ${AWS::StackName}-LambdaExecutionRoleArn
   ALBSecurityGroupId:
     Value: !Ref ALBSecurityGroup
     Export:
-      Name: !Sub ${ProjectName}-ALBSecurityGroupId
+      Name: !Sub ${AWS::StackName}-ALBSecurityGroupId
   ASGSecurityGroupId:
     Value: !Ref ASGSecurityGroup
     Export:
-      Name: !Sub ${ProjectName}-ASGSecurityGroupId
+      Name: !Sub ${AWS::StackName}-ASGSecurityGroupId
   RDSSecurityGroupId:
     Value: !Ref RDSSecurityGroup
     Export:
-      Name: !Sub ${ProjectName}-RDSSecurityGroupId
+      Name: !Sub ${AWS::StackName}-RDSSecurityGroupId
   RedisSecurityGroupId:
     Value: !Ref RedisSecurityGroup
     Export:
-      Name: !Sub ${ProjectName}-RedisSecurityGroupId
+      Name: !Sub ${AWS::StackName}-RedisSecurityGroupId

@@ -69,6 +69,11 @@ Resources:
         ALBSecurityGroupId: !GetAtt SecurityStack.Outputs.ALBSecurityGroupId
         ASGSecurityGroupId: !GetAtt SecurityStack.Outputs.ASGSecurityGroupId
         EC2InstanceProfile: !GetAtt SecurityStack.Outputs.EC2InstanceProfile
+        RDSEndpoint: !GetAtt DataStack.Outputs.RDSEndpoint
+        RedisEndpoint: !GetAtt DataStack.Outputs.RedisEndpoint
+        QueueUrl: !GetAtt AsyncStack.Outputs.QueueUrl
+        DBUser: !Ref DBUser
+        DBPassword: !Ref DBPassword
 
   FrontendStack:
     Type: AWS::CloudFormation::Stack
@@ -84,7 +89,7 @@ Resources:
       TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/07-CICD.yaml
       Parameters:
         ProjectName: !Ref ProjectName
-        ASGName: !Sub ${ProjectName}-ASG
+        ASGName: !GetAtt ComputeStack.Outputs.ASGName
         FrontendBucketName: !GetAtt FrontendStack.Outputs.S3BucketName
 
 Outputs:

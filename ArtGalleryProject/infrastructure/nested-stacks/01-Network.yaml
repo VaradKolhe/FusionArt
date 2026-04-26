@@ -1,11 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'FusionArt Network Stack: VPC, Subnets, Gateways, and Route Tables'
+Description: 'FusionArt Network Stack: Private Subnets with IGW Routing'
 
 Parameters:
   ProjectName:
     Type: String
     Default: FusionArt
-    Description: Name of the project used for tagging
 
   VpcCIDR:
     Type: String
@@ -33,7 +32,6 @@ Parameters:
     Default: 10.0.22.0/24
 
 Resources:
-  # VPC
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -44,7 +42,6 @@ Resources:
         - Key: Name
           Value: !Sub ${ProjectName}-VPC
 
-  # Internet Gateway
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -58,7 +55,6 @@ Resources:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
 
-  # Public Subnets (AZ1 & AZ2)
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -81,13 +77,13 @@ Resources:
         - Key: Name
           Value: !Sub ${ProjectName}-Public-Subnet-2
 
-  # Private App Subnets (AZ1 & AZ2)
   PrivateAppSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [ 0, !GetAZs '' ]
       CidrBlock: !Ref PrivateAppSubnet1CIDR
+      MapPublicIpOnLaunch: true # Required for dependency download without NAT
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-Private-App-Subnet-1
@@ -98,11 +94,11 @@ Resources:
       VpcId: !Ref VPC
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       CidrBlock: !Ref PrivateAppSubnet2CIDR
+      MapPublicIpOnLaunch: true # Required for dependency download without NAT
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-Private-App-Subnet-2
 
-  # Private Data Subnets (AZ1 & AZ2)
   PrivateDataSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -123,7 +119,6 @@ Resources:
         - Key: Name
           Value: !Sub ${ProjectName}-Private-Data-Subnet-2
 
-  # Public Route Table (Used for everything to save cost)
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -140,32 +135,38 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
 
-  # Route Table Associations (All subnets use the Public Route Table to avoid NAT Gateway costs)
-  PublicSubnet1Association:
+  # Subnet Associations
+  PublicSub1Assoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet1
       RouteTableId: !Ref PublicRouteTable
-...
-  PrivateAppSubnet1Association:
+
+  PublicSub2Assoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateAppSub1Assoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateAppSubnet1
       RouteTableId: !Ref PublicRouteTable
 
-  PrivateAppSubnet2Association:
+  PrivateAppSub2Assoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateAppSubnet2
       RouteTableId: !Ref PublicRouteTable
 
-  PrivateDataSubnet1Association:
+  PrivateDataSub1Assoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateDataSubnet1
       RouteTableId: !Ref PublicRouteTable
 
-  PrivateDataSubnet2Association:
+  PrivateDataSub2Assoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivateDataSubnet2
@@ -173,34 +174,23 @@ Resources:
 
 Outputs:
   VpcId:
-    Description: VPC ID
     Value: !Ref VPC
-    Export:
-      Name: !Sub ${ProjectName}-VpcId
-
+    Export: { Name: !Sub "${AWS::StackName}-VpcId" }
   PublicSubnet1:
     Value: !Ref PublicSubnet1
-    Export:
-      Name: !Sub ${ProjectName}-PublicSubnet1
+    Export: { Name: !Sub "${AWS::StackName}-PublicSubnet1" }
   PublicSubnet2:
     Value: !Ref PublicSubnet2
-    Export:
-      Name: !Sub ${ProjectName}-PublicSubnet2
-
+    Export: { Name: !Sub "${AWS::StackName}-PublicSubnet2" }
   PrivateAppSubnet1:
     Value: !Ref PrivateAppSubnet1
-    Export:
-      Name: !Sub ${ProjectName}-PrivateAppSubnet1
+    Export: { Name: { "Fn::Sub": "${AWS::StackName}-PrivateAppSubnet1" } }
   PrivateAppSubnet2:
     Value: !Ref PrivateAppSubnet2
-    Export:
-      Name: !Sub ${ProjectName}-PrivateAppSubnet2
-
+    Export: { Name: { "Fn::Sub": "${AWS::StackName}-PrivateAppSubnet2" } }
   PrivateDataSubnet1:
     Value: !Ref PrivateDataSubnet1
-    Export:
-      Name: !Sub ${ProjectName}-PrivateDataSubnet1
+    Export: { Name: { "Fn::Sub": "${AWS::StackName}-PrivateDataSubnet1" } }
   PrivateDataSubnet2:
     Value: !Ref PrivateDataSubnet2
-    Export:
-      Name: !Sub ${ProjectName}-PrivateDataSubnet2
+    Export: { Name: { "Fn::Sub": "${AWS::StackName}-PrivateDataSubnet2" } }
