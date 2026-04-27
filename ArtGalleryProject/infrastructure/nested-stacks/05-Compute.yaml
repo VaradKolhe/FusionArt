@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'FusionArt Compute Stack: Clean Version with Secrets Support'
+Description: 'FusionArt Compute Stack: Hardcoded Mumbai with Package Conflict Fix'
 
 Parameters:
   ProjectName:
@@ -69,9 +69,6 @@ Resources:
       TargetType: instance
       Matcher:
         HttpCode: '200-399'
-      TargetGroupAttributes:
-        - Key: deregistration_delay.timeout_seconds
-          Value: '5'
 
   ASGLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
@@ -89,25 +86,56 @@ Resources:
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash
-            yum update -y
-            yum install -y java-17-amazon-corretto-devel ruby wget lsof psmisc curl
             
-            # Setup Fallback Environment Variables
+            exec > >(tee /var/log/fusionart-userdata.log) 2>&1
+            set -xeuo pipefail
+            
+            date
+            cat /etc/os-release || true
+            uname -a || true
+            
+            yum update -y
+            
+            # Fix Amazon Linux 2023 curl-minimal conflict
+            yum install -y --allowerasing java-17-amazon-corretto-devel ruby wget lsof psmisc curl
+            
+            java -version || true
+            ruby --version || true
+            curl --version || true
+            
             cat <<EOF > /etc/profile.d/fusionart_env.sh
-            export AWS_REGION="${AWS::Region}"
+            export AWS_REGION="ap-south-1"
             export PORT=8085
             EOF
             
+            chmod +x /etc/profile.d/fusionart_env.sh
             source /etc/profile.d/fusionart_env.sh
-
-            cd /home/ec2-user
-            wget https://aws-codedeploy-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/latest/install
-            chmod +x ./install
+            
+            echo "AWS_REGION=$AWS_REGION"
+            echo "PORT=$PORT"
+            
+            cd /home/ec2-user || cd /tmp
+            
+            wget https://aws-codedeploy-ap-south-1.s3.ap-south-1.amazonaws.com/latest/install
+            
+            chmod +x install
             ./install auto
-            systemctl start codedeploy-agent
+            
+            systemctl daemon-reload || true
+            systemctl enable codedeploy-agent || true
+            systemctl start codedeploy-agent || true
+            
+            systemctl status codedeploy-agent --no-pager || true
+            ps -ef | grep codedeploy | grep -v grep || true
+            
+            echo "DONE"
 
   AutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: '1'
+        MaxBatchSize: '1'
     Properties:
       LaunchTemplate:
         LaunchTemplateId: !Ref ASGLaunchTemplate

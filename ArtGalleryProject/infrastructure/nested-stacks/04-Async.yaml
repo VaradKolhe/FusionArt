@@ -31,7 +31,7 @@ Resources:
       FunctionName: !Sub ${ProjectName}-Notification-Worker
       Handler: index.handler
       Role: !Ref LambdaExecutionRoleArn
-      Runtime: nodejs18.x
+      Runtime: nodejs20.x
       Timeout: 60
       MemorySize: 128
       Code:

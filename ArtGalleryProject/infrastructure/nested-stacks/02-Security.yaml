@@ -24,6 +24,7 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
       Policies:
         - PolicyName: FusionArtAppPolicy
           PolicyDocument:
@@ -40,6 +41,7 @@ Resources:
                   - 'sqs:ReceiveMessage'
                   - 'sqs:DeleteMessage'
                   - 'sqs:GetQueueAttributes'
+                  - 'codedeploy:*'
                 Resource: '*'
 
   EC2InstanceProfile:
