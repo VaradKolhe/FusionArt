@@ -2,9 +2,9 @@ version: 0.0
 os: linux
 files:
   - source: ArtGalleryProject/backend/target/ArtGalleryProject-0.0.1-SNAPSHOT.jar
-    destination: /home/ec2-user/app
+    destination: /home/ec2-user/app/
   - source: ArtGalleryProject/scripts/
-    destination: /home/ec2-user/scripts
+    destination: /home/ec2-user/scripts/
 permissions:
   - object: /home/ec2-user/scripts/
     pattern: "*.sh"
