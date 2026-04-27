@@ -8,7 +8,7 @@ phases:
   pre_build:
     commands:
       - echo Installing dependencies...
-      - cd frontend && npm install --legacy-peer-deps
+      - cd ArtGalleryProject/frontend && npm install --legacy-peer-deps
       - cd ../backend && chmod +x mvnw
   build:
     commands:
@@ -22,8 +22,8 @@ phases:
 
 artifacts:
   files:
-    - 'backend/target/*.jar'
-    - 'frontend/dist/**/*'
+    - 'ArtGalleryProject/backend/target/*.jar'
+    - 'ArtGalleryProject/frontend/dist/**/*'
     - 'appspec.yml'
-    - 'scripts/**/*'
+    - 'ArtGalleryProject/scripts/**/*'
   discard-paths: no
