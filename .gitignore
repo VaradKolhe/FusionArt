@@ -8,4 +8,6 @@
 /ArtGalleryProject/.vscode
 /ArtGalleryProject/documentation
 /ArtGalleryProject/GEMINI.md
-ArtGalleryProject/setup-ssh.ps1
+/ArtGalleryProject/setup-ssh.ps1
+/ArtGalleryProject/appspec.yml
+/ArtGalleryProject/buildspec.yml
