@@ -1,22 +1,16 @@
 #!/bin/bash
-echo "Starting FusionArt Application..."
-cd /home/ec2-user/app
+echo "Starting FusionArt Application via Systemd..."
 
-# Ensure the log file exists and is writable
-touch app.log
-chmod 666 app.log
+# Start the service
+sudo systemctl restart fusionart
 
-# Start the JAR in the background
-# We use the exact name from the build output
-nohup java -jar ArtGalleryProject-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-
-# Wait a few seconds to see if it crashed immediately
-sleep 10
-if ps -ef | grep -v grep | grep ArtGalleryProject ; then
+# Check if it's running
+sleep 5
+if systemctl is-active --quiet fusionart; then
     echo "Application started successfully."
     exit 0
 else
-    echo "Application failed to start. Check app.log"
-    cat app.log
+    echo "Application failed to start. Logs:"
+    sudo journalctl -u fusionart -n 50
     exit 1
 fi
