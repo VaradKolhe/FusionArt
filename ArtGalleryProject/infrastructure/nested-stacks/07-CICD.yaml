@@ -101,6 +101,8 @@ Resources:
         EnvironmentVariables:
           - Name: FRONTEND_BUCKET
             Value: !Sub fusionart-frontend-${AWS::AccountId}
+          - Name: VITE_API_URL
+            Value: !Sub https://${CloudFrontDomainName}/api # Use CloudFront for everything
       Source:
         Type: CODEPIPELINE
 
