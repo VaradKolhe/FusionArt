@@ -33,6 +33,9 @@ Resources:
               - Effect: Allow
                 Action:
                   - 'secretsmanager:GetSecretValue'
+                  - 'ssm:GetParameters'
+                  - 'ssm:GetParameter'
+                  - 'ssm:GetParametersByPath'
                   - 's3:PutObject'
                   - 's3:GetObject'
                   - 's3:GetObjectVersion'

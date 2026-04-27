@@ -5,8 +5,8 @@ spring:
     name: ArtGalleryProject
   config:
     import:
-      - aws-secretsmanager:FusionArt
-      - aws-parameterstore:/config/FusionArt/
+      - optional:aws-secretsmanager:FusionArt
+      - optional:aws-parameterstore:/config/FusionArt/
   
   # Database Configuration
   datasource:
