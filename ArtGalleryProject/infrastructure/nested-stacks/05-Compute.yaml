@@ -69,6 +69,9 @@ Resources:
       TargetType: instance
       Matcher:
         HttpCode: '200'
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '30'
 
   ASGLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate

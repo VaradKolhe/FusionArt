@@ -8,3 +8,4 @@ else
     kill -9 $PID
     echo "Application stopped."
 fi
+exit 0
