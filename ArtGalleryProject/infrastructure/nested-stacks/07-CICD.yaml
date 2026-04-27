@@ -21,6 +21,8 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub fusionart-artifacts-${AWS::AccountId}
+      VersioningConfiguration:
+        Status: Enabled
 
   # CodeDeploy Resources
   DeployApp:
