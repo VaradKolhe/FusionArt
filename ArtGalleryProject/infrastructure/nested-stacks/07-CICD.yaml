@@ -10,6 +10,9 @@ Parameters:
     Type: String
   ALBTargetGroupName:
     Type: String
+  CloudFrontDomainName:
+    Type: String
+    Default: 'pending'
 
 Resources:
   Repo:
@@ -102,7 +105,9 @@ Resources:
           - Name: FRONTEND_BUCKET
             Value: !Sub fusionart-frontend-${AWS::AccountId}
           - Name: VITE_API_URL
-            Value: !Sub https://${CloudFrontDomainName}/api # Use CloudFront for everything
+            Value: !Sub 
+              - https://${Domain}/api
+              - Domain: !Ref CloudFrontDomainName
       Source:
         Type: CODEPIPELINE
 

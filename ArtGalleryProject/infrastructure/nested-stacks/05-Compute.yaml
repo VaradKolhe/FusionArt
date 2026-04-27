@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'FusionArt Compute Stack: Final Resilient Version with SSM AMI'
+Description: 'FusionArt Compute Stack: Clean Version with Secrets Support'
 
 Parameters:
   ProjectName:
@@ -90,15 +90,10 @@ Resources:
           Fn::Base64: !Sub |
             #!/bin/bash
             yum update -y
-            yum install -y java-17-amazon-corretto-devel ruby wget lsof psmisc
+            yum install -y java-17-amazon-corretto-devel ruby wget lsof psmisc curl
             
-            # Setup Environment Variables for Spring Boot
+            # Setup Fallback Environment Variables
             cat <<EOF > /etc/profile.d/fusionart_env.sh
-            export DB_URL="jdbc:mysql://${RDSEndpoint}:3306/ArtGallery"
-            export DB_USERNAME="${DBUser}"
-            export DB_PASSWORD="${DBPassword}"
-            export REDIS_HOST="${RedisEndpoint}"
-            export SQS_QUEUE_NOTIFICATIONS="${QueueUrl}"
             export AWS_REGION="${AWS::Region}"
             export PORT=8085
             EOF

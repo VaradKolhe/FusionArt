@@ -1,4 +1,6 @@
 spring:
+  main:
+    allow-circular-references: true
   application:
     name: ArtGalleryProject
   
@@ -47,7 +49,10 @@ spring:
       region:
         static: ${AWS_REGION:ap-south-1}
       secrets-manager:
-        enabled: ${AWS_SECRETS_MANAGER_ENABLED:false}
+        enabled: true
+        # Spring will look for a secret named 'ArtGalleryProject' by default
+        # or you can specify a name:
+        name: ArtGalleryProject
 
 server:
   port: ${PORT:8085}
