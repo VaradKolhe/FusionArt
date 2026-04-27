@@ -35,13 +35,16 @@ RETRY_COUNT=0
 HEALTH_URL="http://localhost:8085/api/actuator/health"
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    RESPONSE=$(curl -s $HEALTH_URL)
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL)
+    
     if [ "$HTTP_STATUS" -eq 200 ]; then
         echo "Application is Healthy! (HTTP 200)"
         exit 0
     fi
     
     echo "Waiting for health check... (Attempt $((RETRY_COUNT+1))/$MAX_RETRIES, Status: $HTTP_STATUS)"
+    echo "Response Body: $RESPONSE"
     RETRY_COUNT=$((RETRY_COUNT+1))
     sleep 5
 done
@@ -49,9 +52,9 @@ done
 echo "!!! APPLICATION FAILED TO PASS HEALTH CHECK WITHIN TIMEOUT !!!"
 echo "--- Systemd Status ---"
 sudo systemctl status fusionart
-echo "--- Last 100 lines of Application Log ---"
+echo "--- Last 200 lines of Application Log ---"
 if [ -f "$APP_LOG" ]; then
-    tail -n 100 "$APP_LOG"
+    tail -n 200 "$APP_LOG"
 else
     echo "Log file $APP_LOG not found."
 fi
