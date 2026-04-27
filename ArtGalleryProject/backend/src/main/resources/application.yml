@@ -3,6 +3,9 @@ spring:
     allow-circular-references: true
   application:
     name: ArtGalleryProject
+  config:
+    import:
+      - aws-secretsmanager:ArtGalleryProject
   
   # Database Configuration
   datasource:
@@ -15,6 +18,10 @@ spring:
     hibernate:
       ddl-auto: ${DDL_AUTO:update}
     show-sql: ${SHOW_SQL:true}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        # Adding dialect explicitly as a safety measure for startup speed
   
   # File Uploads
   servlet:
