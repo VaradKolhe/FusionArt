@@ -85,4 +85,16 @@ management:
         include: health
   endpoint:
     health:
-      show-details: always
+      show-details: when_authorized
+      group:
+        readiness:
+          include: "*"
+      # Disable specific health indicators that might be slow during startup
+      # but are not critical for the initial Load Balancer check
+  health:
+    db:
+      enabled: false
+    redis:
+      enabled: false
+    sqs:
+      enabled: false

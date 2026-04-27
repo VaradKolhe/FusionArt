@@ -62,16 +62,16 @@ Resources:
       Protocol: HTTP
       VpcId: !Ref VpcId
       HealthCheckPath: /api/actuator/health
-      HealthCheckIntervalSeconds: 30
+      HealthCheckIntervalSeconds: 10
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      UnhealthyThresholdCount: 5
+      UnhealthyThresholdCount: 2
       TargetType: instance
       Matcher:
         HttpCode: '200'
       TargetGroupAttributes:
         - Key: deregistration_delay.timeout_seconds
-          Value: '30'
+          Value: '5'
 
   ASGLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
