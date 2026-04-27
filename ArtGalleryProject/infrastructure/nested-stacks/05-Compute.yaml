@@ -117,9 +117,9 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref ASGLaunchTemplate
         Version: !GetAtt ASGLaunchTemplate.LatestVersionNumber
-      MinSize: '1'
-      MaxSize: '2'
-      DesiredCapacity: '1'
+      MinSize: '2'
+      MaxSize: '4'
+      DesiredCapacity: '2'
       VPCZoneIdentifier:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
