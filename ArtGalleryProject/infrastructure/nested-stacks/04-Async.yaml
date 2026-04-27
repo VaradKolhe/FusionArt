@@ -1,17 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'FusionArt Async Stack: SQS and Lambda for Notifications'
+Description: 'FusionArt Async Stack: SQS and Lambda for Notifications (Speed Optimized)'
 
 Parameters:
   ProjectName:
     Type: String
     Default: FusionArt
   LambdaExecutionRoleArn:
-    Type: String
-  PrivateAppSubnet1:
-    Type: String
-  PrivateAppSubnet2:
-    Type: String
-  ASGSecurityGroupId: # Using same SG for simplicity or dedicated
     Type: String
 
 Resources:
@@ -30,7 +24,7 @@ Resources:
     Properties:
       QueueName: !Sub ${ProjectName}-Notification-DLQ
 
-  # Notification Worker Lambda
+  # Notification Worker Lambda (Removed from VPC for speed and internet access)
   NotificationWorkerLambda:
     Type: AWS::Lambda::Function
     Properties:
@@ -40,19 +34,13 @@ Resources:
       Runtime: nodejs18.x
       Timeout: 60
       MemorySize: 128
-      VpcConfig:
-        SecurityGroupIds:
-          - !Ref ASGSecurityGroupId
-        SubnetIds:
-          - !Ref PrivateAppSubnet1
-          - !Ref PrivateAppSubnet2
       Code:
         ZipFile: |
           exports.handler = async (event) => {
             for (const record of event.Records) {
               const body = JSON.parse(record.body);
               console.log('Processing notification:', body);
-              // Notification logic here
+              // Notification logic here (e.g., sending email)
             }
             return { statusCode: 200 };
           };

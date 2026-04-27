@@ -18,7 +18,7 @@ Resources:
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${ProjectName}-artifacts-${AWS::AccountId}
+      BucketName: !Sub fusionart-artifacts-${AWS::AccountId}
 
   # CodeDeploy Resources
   DeployApp:

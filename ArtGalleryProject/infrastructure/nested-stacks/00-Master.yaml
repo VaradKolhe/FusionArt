@@ -51,9 +51,6 @@ Resources:
       Parameters:
         ProjectName: !Ref ProjectName
         LambdaExecutionRoleArn: !GetAtt SecurityStack.Outputs.LambdaExecutionRoleArn
-        PrivateAppSubnet1: !GetAtt NetworkStack.Outputs.PrivateAppSubnet1
-        PrivateAppSubnet2: !GetAtt NetworkStack.Outputs.PrivateAppSubnet2
-        ASGSecurityGroupId: !GetAtt SecurityStack.Outputs.ASGSecurityGroupId
 
   ComputeStack:
     Type: AWS::CloudFormation::Stack

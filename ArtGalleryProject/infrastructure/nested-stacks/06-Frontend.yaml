@@ -12,7 +12,7 @@ Resources:
   FrontendBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${ProjectName}-frontend-${AWS::AccountId}
+      BucketName: !Sub fusionart-frontend-${AWS::AccountId}
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
@@ -23,9 +23,9 @@ Resources:
         RestrictPublicBuckets: true
 
   CloudFrontOAI:
-    Type: AWS::CloudFront::CloudOriginAccessIdentity
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
-      CloudOriginAccessIdentityConfig:
+      CloudFrontOriginAccessIdentityConfig:
         Comment: !Sub OAI for ${ProjectName} Frontend
 
   BucketPolicy:
@@ -33,7 +33,7 @@ Resources:
     Properties:
       Bucket: !Ref FrontendBucket
       PolicyDocument:
-        Version: '2010-09-09'
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:

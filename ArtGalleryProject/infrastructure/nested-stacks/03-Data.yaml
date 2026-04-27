@@ -39,6 +39,7 @@ Resources:
   # RDS MySQL Instance (Multi-AZ)
   RDSInstance:
     Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
     Properties:
       DBName: !Ref DBName
       Engine: mysql
@@ -68,6 +69,7 @@ Resources:
   # ElastiCache Redis Cluster
   RedisCluster:
     Type: AWS::ElastiCache::CacheCluster
+    DeletionPolicy: Delete
     Properties:
       CacheNodeType: cache.t3.micro
       Engine: redis
