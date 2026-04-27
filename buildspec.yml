@@ -7,18 +7,20 @@ phases:
       nodejs: 20
   pre_build:
     commands:
-      - echo Installing dependencies...
-      - cd ArtGalleryProject/frontend && npm install --legacy-peer-deps
-      - cd ../backend && chmod +x mvnw
+      - echo "Installing dependencies..."
+      - cd $CODEBUILD_SRC_DIR/ArtGalleryProject/frontend && npm install --legacy-peer-deps
+      - cd $CODEBUILD_SRC_DIR/ArtGalleryProject/backend && chmod +x mvnw
   build:
     commands:
-      - echo Building Frontend...
-      - cd ArtGalleryProject/frontend && npm run build
-      - echo Building Backend...
-      - cd ArtGalleryProject/backend && ./mvnw clean package -DskipTests
+      - echo "Building Frontend..."
+      - cd $CODEBUILD_SRC_DIR/ArtGalleryProject/frontend && npm run build
+      - echo "Building Backend..."
+      - cd $CODEBUILD_SRC_DIR/ArtGalleryProject/backend && ./mvnw clean package -DskipTests
   post_build:
     commands:
-      - echo Build completed on `date`
+      - echo "Build completed on `date`"
+      - # Ensure we are at root for copying
+      - cd $CODEBUILD_SRC_DIR
       - cp ArtGalleryProject/appspec_for_head.yml appspec.yml
       - cp ArtGalleryProject/buildspec_for_head.yml buildspec.yml
 
