@@ -5,8 +5,7 @@ After=network.target
 [Service]
 User=ec2-user
 WorkingDirectory=/home/ec2-user/app
-# We use bash -c to source the environment variables before starting the JAR
-ExecStart=/bin/bash -c 'source /etc/profile.d/fusionart_env.sh && [ -f /home/ec2-user/app/.env ] && source /home/ec2-user/app/.env; exec /usr/bin/java -jar /home/ec2-user/app/ArtGalleryProject-0.0.1-SNAPSHOT.jar'
+ExecStart=/bin/bash -c 'source /etc/profile.d/fusionart_env.sh; exec /usr/bin/java -jar /home/ec2-user/app/ArtGalleryProject-0.0.1-SNAPSHOT.jar'
 SuccessExitStatus=143
 Restart=always
 RestartSec=10

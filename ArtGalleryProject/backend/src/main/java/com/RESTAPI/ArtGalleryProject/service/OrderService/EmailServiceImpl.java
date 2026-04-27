@@ -1,6 +1,7 @@
 package com.RESTAPI.ArtGalleryProject.service.OrderService;
 
 import java.io.File;
+import java.net.URL;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -41,12 +43,21 @@ public class EmailServiceImpl implements EmailService {
 		helper.setText(htmlContent, true);
 
 		// Inline painting image
-		File imageFile = new File(inlineImageAbsolutePath);
-		if (imageFile.exists()) {
-			FileSystemResource imageResource = new FileSystemResource(imageFile);
-			helper.addInline("paintingImage", imageResource);
-		} else {
-			logger.warn("Inline image not found at path: {}", inlineImageAbsolutePath);
+		if (inlineImageAbsolutePath != null && (inlineImageAbsolutePath.startsWith("http://") || inlineImageAbsolutePath.startsWith("https://"))) {
+			try {
+				UrlResource urlResource = new UrlResource(new URL(inlineImageAbsolutePath));
+				helper.addInline("paintingImage", urlResource);
+			} catch (Exception e) {
+				logger.error("Failed to add remote inline image: {}", inlineImageAbsolutePath, e);
+			}
+		} else if (inlineImageAbsolutePath != null) {
+			File imageFile = new File(inlineImageAbsolutePath);
+			if (imageFile.exists()) {
+				FileSystemResource imageResource = new FileSystemResource(imageFile);
+				helper.addInline("paintingImage", imageResource);
+			} else {
+				logger.warn("Inline image not found at path: {}", inlineImageAbsolutePath);
+			}
 		}
 
 		// Attach PDF

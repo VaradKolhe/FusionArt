@@ -48,6 +48,14 @@ Resources:
         Variables:
           PROJECT_NAME: !Ref ProjectName
 
+  # SSM Parameter for SQS Discovery
+  QueueUrlParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/SQS_QUEUE_NOTIFICATIONS
+      Type: String
+      Value: !Ref NotificationQueue
+
   # Lambda Event Source Mapping (SQS -> Lambda)
   NotificationEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping

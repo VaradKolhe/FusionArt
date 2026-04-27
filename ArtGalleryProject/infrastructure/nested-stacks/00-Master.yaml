@@ -61,11 +61,7 @@ Resources:
       TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/08-Secrets.yaml
       Parameters:
         ProjectName: !Ref ProjectName
-        RDSEndpoint: !GetAtt DataStack.Outputs.RDSEndpoint
-        DBUser: !Ref DBUser
         DBPassword: !Ref DBPassword
-        RedisEndpoint: !GetAtt DataStack.Outputs.RedisEndpoint
-        QueueUrl: !GetAtt AsyncStack.Outputs.QueueUrl
 
   ComputeStack:
     Type: AWS::CloudFormation::Stack

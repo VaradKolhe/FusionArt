@@ -5,7 +5,8 @@ spring:
     name: ArtGalleryProject
   config:
     import:
-      - aws-secretsmanager:ArtGalleryProject
+      - aws-secretsmanager:FusionArt
+      - aws-parameterstore:/config/FusionArt/
   
   # Database Configuration
   datasource:
@@ -57,9 +58,8 @@ spring:
         static: ${AWS_REGION:ap-south-1}
       secrets-manager:
         enabled: true
-        # Spring will look for a secret named 'ArtGalleryProject' by default
-        # or you can specify a name:
-        name: ArtGalleryProject
+        # Match the secret name in 08-Secrets.yaml
+        name: FusionArt
 
 server:
   port: ${PORT:8085}

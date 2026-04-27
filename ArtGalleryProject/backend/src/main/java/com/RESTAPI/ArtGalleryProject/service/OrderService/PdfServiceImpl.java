@@ -29,8 +29,14 @@ public class PdfServiceImpl implements PdfService{
             throws DocumentException, IOException {
 
         String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM yyyy"));
-        Path imagePath = Paths.get(imageDirectory, painting.getImageUrl());
-        String imageUri = imagePath.toUri().toString();
+        
+        String imageUri;
+        if (painting.getImageUrl() != null && (painting.getImageUrl().startsWith("http://") || painting.getImageUrl().startsWith("https://"))) {
+            imageUri = painting.getImageUrl();
+        } else {
+            Path imagePath = Paths.get(imageDirectory, painting.getImageUrl());
+            imageUri = imagePath.toUri().toString();
+        }
 
         String html = """
             <!DOCTYPE html>

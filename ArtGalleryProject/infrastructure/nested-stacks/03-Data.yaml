@@ -81,6 +81,103 @@ Resources:
         - Key: Name
           Value: !Sub ${ProjectName}-Redis
 
+  # Image Storage S3 Bucket
+  ImageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub fusionart-images-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-Images
+
+  # OAI for CloudFront to Access S3
+  ImageCloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub OAI for ${ProjectName} Images
+
+  # Bucket Policy to allow CloudFront OAI
+  ImageBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ImageBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt ImageCloudFrontOAI.S3CanonicalUserId
+            Action: s3:GetObject
+            Resource: !Sub ${ImageBucket.Arn}/*
+
+  # CloudFront Distribution for Images
+  ImageCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt ImageBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${ImageCloudFrontOAI}
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: allow-all
+          ForwardedValues:
+            QueryString: false
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+
+  # SSM Parameters for App Configuration
+  DBUrlParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/DB_URL
+      Type: String
+      Value: !Sub "jdbc:mysql://${RDSInstance.Endpoint.Address}:3306/${DBName}"
+
+  DBUserParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/DB_USERNAME
+      Type: String
+      Value: !Ref DBUser
+
+  RedisHostParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/REDIS_HOST
+      Type: String
+      Value: !GetAtt RedisCluster.RedisEndpoint.Address
+
+  S3BucketParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/S3_BUCKET_IMAGES
+      Type: String
+      Value: !Ref ImageBucket
+
+  CDNUrlParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/CDN_URL
+      Type: String
+      Value: !Sub "https://${ImageCDN.DomainName}"
+
+  ImagePathParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/IMAGE_PATH
+      Type: String
+      Value: "image"
+
 Outputs:
   RDSEndpoint:
     Value: !GetAtt RDSInstance.Endpoint.Address
@@ -90,3 +187,11 @@ Outputs:
     Value: !GetAtt RedisCluster.RedisEndpoint.Address
     Export:
       Name: !Sub ${AWS::StackName}-RedisEndpoint
+  ImageBucketName:
+    Value: !Ref ImageBucket
+    Export:
+      Name: !Sub ${AWS::StackName}-ImageBucketName
+  ImageCloudFrontDomainName:
+    Value: !GetAtt ImageCDN.DomainName
+    Export:
+      Name: !Sub ${AWS::StackName}-ImageCloudFrontDomainName
