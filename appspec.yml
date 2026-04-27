@@ -5,16 +5,26 @@ files:
     destination: /home/ec2-user/app
   - source: ArtGalleryProject/scripts/
     destination: /home/ec2-user/scripts
+permissions:
+  - object: /home/ec2-user/scripts/
+    pattern: "*.sh"
+    owner: ec2-user
+    group: ec2-user
+    mode: 755
 hooks:
   BeforeInstall:
     - location: ArtGalleryProject/scripts/install_dependencies.sh
       timeout: 300
       runas: root
+  AfterInstall:
+    - location: ArtGalleryProject/scripts/setup_service.sh
+      timeout: 300
+      runas: root
   ApplicationStop:
     - location: ArtGalleryProject/scripts/stop_server.sh
       timeout: 300
-      runas: ec2-user
+      runas: root
   ApplicationStart:
     - location: ArtGalleryProject/scripts/start_server.sh
       timeout: 600
-      runas: ec2-user
+      runas: root

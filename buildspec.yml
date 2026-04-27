@@ -13,16 +13,18 @@ phases:
   build:
     commands:
       - echo Building Frontend...
-      - cd ../frontend && npm run build
+      - cd ArtGalleryProject/frontend && npm run build
       - echo Building Backend...
-      - cd ../backend && ./mvnw clean package -DskipTests
+      - cd ArtGalleryProject/backend && ./mvnw clean package -DskipTests
   post_build:
     commands:
       - echo Build completed on `date`
+      - cp ArtGalleryProject/appspec_for_head.yml appspec.yml
+      - cp ArtGalleryProject/buildspec_for_head.yml buildspec.yml
 
 artifacts:
   files:
-    - 'ArtGalleryProject/backend/target/*.jar'
+    - 'ArtGalleryProject/backend/target/ArtGalleryProject-0.0.1-SNAPSHOT.jar'
     - 'ArtGalleryProject/frontend/dist/**/*'
     - 'appspec.yml'
     - 'ArtGalleryProject/scripts/**/*'
