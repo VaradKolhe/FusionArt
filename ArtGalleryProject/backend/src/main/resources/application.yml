@@ -76,3 +76,13 @@ logging:
   level:
     org.springframework: ${LOG_LEVEL_SPRING:INFO}
     com.RESTAPI: ${LOG_LEVEL_APP:DEBUG}
+
+# Expose Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

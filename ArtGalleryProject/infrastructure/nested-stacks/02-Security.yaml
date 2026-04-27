@@ -34,6 +34,7 @@ Resources:
                   - 'secretsmanager:GetSecretValue'
                   - 's3:PutObject'
                   - 's3:GetObject'
+                  - 's3:GetObjectVersion'
                   - 's3:ListBucket'
                   - 'sqs:SendMessage'
                   - 'sqs:ReceiveMessage'
