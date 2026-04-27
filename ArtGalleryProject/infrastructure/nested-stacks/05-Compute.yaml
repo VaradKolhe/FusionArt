@@ -68,7 +68,7 @@ Resources:
       UnhealthyThresholdCount: 2
       TargetType: instance
       Matcher:
-        HttpCode: '200'
+        HttpCode: '200-399'
       TargetGroupAttributes:
         - Key: deregistration_delay.timeout_seconds
           Value: '5'
@@ -125,8 +125,8 @@ Resources:
         - !Ref PublicSubnet2
       TargetGroupARNs:
         - !Ref ALBTargetGroup
-      HealthCheckType: EC2
-      HealthCheckGracePeriod: 300
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 60
 
 Outputs:
   ALBDnsName:

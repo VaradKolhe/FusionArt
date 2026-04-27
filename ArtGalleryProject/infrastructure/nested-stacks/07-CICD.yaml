@@ -39,7 +39,7 @@ Resources:
       ServiceRoleArn: !GetAtt CodeDeployRole.Arn
       AutoScalingGroups:
         - !Ref ASGName
-      DeploymentConfigName: CodeDeployDefault.OneAtATime
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
       DeploymentStyle:
         DeploymentOption: WITH_TRAFFIC_CONTROL
         DeploymentType: IN_PLACE
@@ -124,17 +124,17 @@ Resources:
             - Name: BuildAction
               ActionTypeId: {Category: Build, Owner: AWS, Provider: CodeBuild, Version: '1'}
               InputArtifacts: [{Name: SourceArtifact}]
-              OutputArtifacts: [{Name: BuildArtifact}]
+              OutputArtifacts: [{Name: BackendArtifact}, {Name: FrontendArtifact}]
               Configuration: {ProjectName: !Ref BuildProject}
         - Name: Deploy
           Actions:
             - Name: DeployBackend
               ActionTypeId: {Category: Deploy, Owner: AWS, Provider: CodeDeploy, Version: '1'}
-              InputArtifacts: [{Name: BuildArtifact}]
+              InputArtifacts: [{Name: BackendArtifact}]
               Configuration: {ApplicationName: !Ref DeployApp, DeploymentGroupName: !Ref DeployGroup}
             - Name: DeployFrontend
               ActionTypeId: {Category: Deploy, Owner: AWS, Provider: S3, Version: '1'}
-              InputArtifacts: [{Name: BuildArtifact}]
+              InputArtifacts: [{Name: FrontendArtifact}]
               Configuration: 
                 BucketName: !Sub fusionart-frontend-${AWS::AccountId}
                 Extract: true
