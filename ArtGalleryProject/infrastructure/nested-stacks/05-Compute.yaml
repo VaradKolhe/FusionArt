@@ -90,7 +90,7 @@ Resources:
           Fn::Base64: !Sub |
             #!/bin/bash
             yum update -y
-            yum install -y java-17-amazon-corretto-devel ruby wget
+            yum install -y java-17-amazon-corretto-devel ruby wget lsof psmisc
             
             # Setup Environment Variables for Spring Boot
             cat <<EOF > /etc/profile.d/fusionart_env.sh
