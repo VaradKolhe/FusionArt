@@ -9,5 +9,5 @@
 /ArtGalleryProject/documentation
 /ArtGalleryProject/GEMINI.md
 /ArtGalleryProject/setup-ssh.ps1
-/ArtGalleryProject/appspec.yml
-/ArtGalleryProject/buildspec.yml
+/ArtGalleryProject/appspec_for_head.yml
+/ArtGalleryProject/buildspec_for_head.yml
