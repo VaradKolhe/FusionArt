@@ -78,11 +78,6 @@ Resources:
         ALBSecurityGroupId: !GetAtt SecurityStack.Outputs.ALBSecurityGroupId
         ASGSecurityGroupId: !GetAtt SecurityStack.Outputs.ASGSecurityGroupId
         EC2InstanceProfile: !GetAtt SecurityStack.Outputs.EC2InstanceProfile
-        RDSEndpoint: !GetAtt DataStack.Outputs.RDSEndpoint
-        RedisEndpoint: !GetAtt DataStack.Outputs.RedisEndpoint
-        QueueUrl: !GetAtt AsyncStack.Outputs.QueueUrl
-        DBUser: !Ref DBUser
-        DBPassword: !Ref DBPassword
 
   FrontendStack:
     Type: AWS::CloudFormation::Stack

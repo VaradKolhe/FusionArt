@@ -20,16 +20,6 @@ Parameters:
     Type: String
   EC2InstanceProfile:
     Type: String
-  RDSEndpoint:
-    Type: String
-  RedisEndpoint:
-    Type: String
-  QueueUrl:
-    Type: String
-  DBUser:
-    Type: String
-  DBPassword:
-    Type: String
   LatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64'
