@@ -1,0 +1,29 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+      nodejs: 18
+  pre_build:
+    commands:
+      - echo Installing dependencies...
+      - cd frontend && npm install
+      - cd ../backend && chmod +x mvnw
+  build:
+    commands:
+      - echo Building Frontend...
+      - cd ../frontend && npm run build
+      - echo Building Backend...
+      - cd ../backend && ./mvnw clean package -DskipTests
+  post_build:
+    commands:
+      - echo Build completed on `date`
+
+artifacts:
+  files:
+    - 'backend/target/*.jar'
+    - 'frontend/dist/**/*'
+    - 'appspec.yml'
+    - 'scripts/**/*'
+  discard-paths: no
