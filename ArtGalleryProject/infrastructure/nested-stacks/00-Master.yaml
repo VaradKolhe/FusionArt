@@ -54,9 +54,6 @@ Resources:
 
   SecretsStack:
     Type: AWS::CloudFormation::Stack
-    DependsOn: 
-      - DataStack
-      - AsyncStack
     Properties:
       TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/08-Secrets.yaml
       Parameters:
@@ -65,7 +62,10 @@ Resources:
 
   ComputeStack:
     Type: AWS::CloudFormation::Stack
-    DependsOn: SecretsStack
+    DependsOn: 
+      - SecurityStack
+      - DataStack
+      - SecretsStack
     Properties:
       TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/05-Compute.yaml
       Parameters:
