@@ -89,6 +89,7 @@ Resources:
 
   CICDStack:
     Type: AWS::CloudFormation::Stack
+    DependsOn: FrontendStack
     Properties:
       TemplateURL: !Sub https://${TemplateBucket}.s3.amazonaws.com/07-CICD.yaml
       Parameters:
@@ -96,6 +97,7 @@ Resources:
         ASGName: !GetAtt ComputeStack.Outputs.ASGName
         FrontendBucketName: !GetAtt FrontendStack.Outputs.S3BucketName
         ALBTargetGroupName: !GetAtt ComputeStack.Outputs.TargetGroupName
+        CloudFrontDomainName: !GetAtt FrontendStack.Outputs.CloudFrontDomainName
 
 Outputs:
   WebsiteURL:
