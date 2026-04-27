@@ -22,8 +22,14 @@ phases:
 
 artifacts:
   files:
-    - 'ArtGalleryProject/backend/target/ArtGalleryProject-0.0.1-SNAPSHOT.jar'
-    - 'ArtGalleryProject/frontend/dist/**/*'
     - 'appspec.yml'
-    - 'ArtGalleryProject/scripts/**/*'
-  discard-paths: no
+  secondary-artifacts:
+    BackendArtifact:
+      files:
+        - 'ArtGalleryProject/backend/target/ArtGalleryProject-0.0.1-SNAPSHOT.jar'
+        - 'appspec.yml'
+        - 'ArtGalleryProject/scripts/**/*'
+    FrontendArtifact:
+      base-directory: 'ArtGalleryProject/frontend/dist'
+      files:
+        - '**/*'
