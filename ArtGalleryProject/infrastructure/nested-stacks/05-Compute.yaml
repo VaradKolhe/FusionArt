@@ -115,7 +115,7 @@ Resources:
         LaunchTemplateId: !Ref ASGLaunchTemplate
         Version: !GetAtt ASGLaunchTemplate.LatestVersionNumber
       MinSize: '1'
-      MaxSize: '1'
+      MaxSize: '2'
       DesiredCapacity: '1'
       VPCZoneIdentifier:
         - !Ref PublicSubnet1
@@ -134,3 +134,7 @@ Outputs:
     Value: !Ref AutoScalingGroup
     Export:
       Name: !Sub ${AWS::StackName}-ASGName
+  TargetGroupName:
+    Value: !GetAtt ALBTargetGroup.TargetGroupName
+    Export:
+      Name: !Sub ${AWS::StackName}-TargetGroupName

@@ -8,6 +8,8 @@ Parameters:
     Type: String
   FrontendBucketName:
     Type: String
+  ALBTargetGroupName:
+    Type: String
 
 Resources:
   Repo:
@@ -39,6 +41,9 @@ Resources:
       DeploymentStyle:
         DeploymentOption: WITH_TRAFFIC_CONTROL
         DeploymentType: IN_PLACE
+      LoadBalancerInfo:
+        TargetGroupInfoList:
+          - Name: !Ref ALBTargetGroupName
 
   # IAM Roles
   CodeBuildRole:
@@ -91,6 +96,9 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/amazonlinux2-x86_64-standard:4.0
+        EnvironmentVariables:
+          - Name: FRONTEND_BUCKET
+            Value: !Sub fusionart-frontend-${AWS::AccountId}
       Source:
         Type: CODEPIPELINE
 
@@ -125,8 +133,10 @@ Resources:
             - Name: DeployFrontend
               ActionTypeId: {Category: Deploy, Owner: AWS, Provider: S3, Version: '1'}
               InputArtifacts: [{Name: BuildArtifact}]
-              Configuration: {BucketName: !Ref FrontendBucketName, Extract: true}
+              Configuration: 
+                BucketName: !Sub fusionart-frontend-${AWS::AccountId}
+                Extract: true
 
 Outputs:
-  RepoCloneUrl:
+  RepoCloneUrlHttp:
     Value: !GetAtt Repo.CloneUrlHttp

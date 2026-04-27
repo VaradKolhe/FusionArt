@@ -88,6 +88,7 @@ Resources:
         ProjectName: !Ref ProjectName
         ASGName: !GetAtt ComputeStack.Outputs.ASGName
         FrontendBucketName: !GetAtt FrontendStack.Outputs.S3BucketName
+        ALBTargetGroupName: !GetAtt ComputeStack.Outputs.TargetGroupName
 
 Outputs:
   WebsiteURL:
