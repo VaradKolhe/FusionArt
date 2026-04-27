@@ -19,10 +19,6 @@ phases:
   post_build:
     commands:
       - echo "Build completed on `date`"
-      - # Ensure we are at root for copying
-      - cd $CODEBUILD_SRC_DIR
-      - cp ArtGalleryProject/appspec_for_head.yml appspec.yml
-      - cp ArtGalleryProject/buildspec_for_head.yml buildspec.yml
 
 artifacts:
   files:
