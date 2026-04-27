@@ -91,6 +91,10 @@ Resources:
           FromPort: 8085
           ToPort: 8085
           SourceSecurityGroupId: !Ref ALBSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-ASG-SG
