@@ -38,8 +38,15 @@ Resources:
           - Effect: Allow
             Principal:
               CanonicalUser: !GetAtt CloudFrontOAI.S3CanonicalUserId
-            Action: s3:GetObject
+            Action: 
+              - s3:GetObject
             Resource: !Sub ${FrontendBucket.Arn}/*
+          - Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOAI.S3CanonicalUserId
+            Action: 
+              - s3:ListBucket
+            Resource: !GetAtt FrontendBucket.Arn
 
   # CloudFront Distribution (Using Default CloudFront Certificate)
   CloudFrontDistribution:
@@ -63,6 +70,10 @@ Resources:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
           Compress: true
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
           ForwardedValues:
             QueryString: false
             Cookies:

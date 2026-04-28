@@ -47,10 +47,13 @@ public class OrdersController {
 	}
 
 	@PostMapping("/paymentCallback")
-	public String paymentCallback(@RequestParam Map<String, String> response) {
+	public org.springframework.web.servlet.view.RedirectView paymentCallback(@RequestParam Map<String, String> response) {
 		orderService.updateStatusPayment(response);
 		logger.info("paymentCallback finished.");
-		return "redirect:" + frontendUrl + "/payment-success";
+		org.springframework.web.servlet.view.RedirectView redirectView = new org.springframework.web.servlet.view.RedirectView();
+		redirectView.setUrl(frontendUrl + "/payment-success");
+		redirectView.setStatusCode(org.springframework.http.HttpStatus.SEE_OTHER);
+		return redirectView;
 	}
 
 	@PostMapping("/paymentCallbackCodOrWallet")

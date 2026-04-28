@@ -114,3 +114,5 @@ management:
       enabled: ${HEALTH_CHECK_REDIS:true}
     sqs:
       enabled: ${HEALTH_CHECK_SQS:true}
+    mail:
+      enabled: false
