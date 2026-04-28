@@ -46,7 +46,7 @@ public class SecurityConfig {
 								"/wallet/**",
 								"/upload-painting")
 						.authenticated()
-						.requestMatchers("/createOrder", "/paymentCallback").permitAll()
+						.requestMatchers("/createOrder", "/paymentCallback", "/actuator/health").permitAll()
 						.anyRequest().permitAll())
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
