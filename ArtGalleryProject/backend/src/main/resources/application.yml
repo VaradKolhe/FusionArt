@@ -106,9 +106,11 @@ management:
       show-details: when_authorized
       probes:
         enabled: true
+      validate-group-membership: false
       group:
         readiness:
-          include: "db,redis,sqs"
+          include: "*"
+          exclude: "mail"
         liveness:
           include: "db"
   health:
