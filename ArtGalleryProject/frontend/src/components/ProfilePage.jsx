@@ -2,7 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import React, { useEffect, useState, useMemo } from "react";
 import axiosInstance from "../axiosInstance";
 import { Navigate } from "react-router-dom";
-import logo from "../utils/logo.png";
+// import logo from "../utils/logo.png";
+const logo = "/logo.png";
 import ArtLover from "../utils/ArtLover.jpg";
 import {
   FaSignOutAlt,
