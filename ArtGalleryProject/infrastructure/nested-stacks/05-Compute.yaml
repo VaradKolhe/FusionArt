@@ -51,8 +51,8 @@ Resources:
       Port: 8085
       Protocol: HTTP
       VpcId: !Ref VpcId
-      HealthCheckPath: /api/actuator/health
-      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /api/actuator/health/readiness
+      HealthCheckIntervalSeconds: 30
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 3

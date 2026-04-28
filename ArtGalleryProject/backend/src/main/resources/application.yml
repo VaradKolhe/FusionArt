@@ -104,9 +104,13 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+      probes:
+        enabled: true
       group:
         readiness:
-          include: "*"
+          include: "db,redis,sqs"
+        liveness:
+          include: "db"
   health:
     db:
       enabled: ${HEALTH_CHECK_DB:true}
