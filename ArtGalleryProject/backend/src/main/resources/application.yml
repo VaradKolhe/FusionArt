@@ -68,6 +68,8 @@ server:
 
 # Application Specific Configurations
 app:
+  jwt:
+    secret: ${JWT_SECRET:23ui42ydq78cebqnspduq8o2h47ybr807G@*&G)&*TBD87qdb87gw7gw7dxhsefgbouydewgfyeb8723brf87gv2bdy8eg3w2g6}
   image:
     path: ${IMAGE_PATH:image}
     s3-bucket: ${S3_BUCKET_IMAGES:}
@@ -101,12 +103,10 @@ management:
       group:
         readiness:
           include: "*"
-      # Disable specific health indicators that might be slow during startup
-      # but are not critical for the initial Load Balancer check
   health:
     db:
-      enabled: false
+      enabled: ${HEALTH_CHECK_DB:true}
     redis:
-      enabled: false
+      enabled: ${HEALTH_CHECK_REDIS:true}
     sqs:
-      enabled: false
+      enabled: ${HEALTH_CHECK_SQS:true}

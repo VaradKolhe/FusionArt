@@ -23,4 +23,6 @@ public interface PaintingRepo extends JpaRepository<Painting, Long> {
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("SELECT p FROM Painting p WHERE p.isSold = false AND p.isForAuction = true")
 	List<Painting> findActiveAuctionsWithLock();
+
+	boolean existsByIsAuctionLiveTrue();
 }

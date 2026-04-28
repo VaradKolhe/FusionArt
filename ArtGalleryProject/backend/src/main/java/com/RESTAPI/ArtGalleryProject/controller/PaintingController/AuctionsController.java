@@ -24,7 +24,6 @@ public class AuctionsController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AuctionsController.class);
 
-	private boolean isAuctionLive = false;
 	@Autowired
 	private AuthHelper authHelper;
 	@Autowired
@@ -53,37 +52,31 @@ public class AuctionsController {
 	}
 
 	@GetMapping("/live")
-	@Transactional
 	public ResponseEntity<?> auctionIsLive() {
 		try {
-			if (isAuctionLive) {
+			if (service.isAnyAuctionLive()) {
 				return new ResponseEntity<>(Map.of("message", "Auction is already live."), HttpStatus.OK);
 			} else {
-				isAuctionLive = true;
 				service.auctionStarts();
 				return new ResponseEntity<>(Map.of("message", "Auction is now live."), HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error starting auction", e);
 			return new ResponseEntity<>("Unexpected Error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
 	@GetMapping("/upcoming")
-	@Transactional
 	public ResponseEntity<?> auctionIsNotLive() {
 		try {
-//			logger.info("auctionIsNotLive started.");
-			if (!isAuctionLive) {
-//				logger.info("auctionIsNotLive finished.");
+			if (!service.isAnyAuctionLive()) {
 				return new ResponseEntity<>(Map.of("message", "Auction is already upcoming."), HttpStatus.OK);
 			} else {
-				isAuctionLive = false;
 				service.auctionEnds();
 				return new ResponseEntity<>(Map.of("message", "Auction has now ended."), HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error ending auction", e);
 			return new ResponseEntity<>("Unexpected Error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

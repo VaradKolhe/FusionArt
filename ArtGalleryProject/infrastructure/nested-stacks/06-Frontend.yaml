@@ -58,11 +58,15 @@ Resources:
               OriginProtocolPolicy: http-only
         Enabled: true
         DefaultRootObject: index.html
+        HttpVersion: http2
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
-          ViewerProtocolPolicy: allow-all
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
           ForwardedValues:
             QueryString: false
+            Cookies:
+              Forward: none
         CacheBehaviors:
           - PathPattern: /api/*
             TargetOriginId: APIOrigin

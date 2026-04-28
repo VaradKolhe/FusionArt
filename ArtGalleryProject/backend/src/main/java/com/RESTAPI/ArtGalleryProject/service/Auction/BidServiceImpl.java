@@ -70,6 +70,11 @@ public class BidServiceImpl implements BidService {
 	private String imageDirectory;
 
 	@Override
+	public boolean isAnyAuctionLive() {
+		return paintingRepo.existsByIsAuctionLiveTrue();
+	}
+
+	@Override
 	@Transactional
 	public void placeBid(long userId, long paintingId, double newBidAmount) {
 		logger.info("placeBid started.");

@@ -2,6 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
 
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 const Orders = () => {
   const [searchParams] = useSearchParams();
   const [name, setName] = useState("");
@@ -16,12 +30,21 @@ const Orders = () => {
 
     if (amountParam) setAmount(amountParam);
     if (itemParam) setItem(itemParam);
+    
+    // Preload script when on orders page
+    loadRazorpayScript();
   }, [searchParams]);
 
   const handlePayment = async (e) => {
     e.preventDefault();
     if (!name || !email || !amount || parseFloat(amount) <= 0) {
       alert("Please fill in all details correctly.");
+      return;
+    }
+
+    const isLoaded = await loadRazorpayScript();
+    if (!isLoaded) {
+      alert("Failed to load Razorpay SDK. Please check your connection.");
       return;
     }
 
