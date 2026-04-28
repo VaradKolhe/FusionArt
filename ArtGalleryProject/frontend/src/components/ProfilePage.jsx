@@ -37,11 +37,11 @@ const ProfilePage = () => {
     >
       <div className="relative h-1/2 overflow-hidden">
         <img
-          src={`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`}
+          src={painting.imageUrl?.startsWith('http') ? painting.imageUrl : `${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`}
           alt={painting.title}
           className="w-full h-full object-cover cursor-pointer transition-transform duration-500 group-hover:scale-110"
           onClick={() =>
-            setFullscreenImage(`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`)
+            setFullscreenImage(painting.imageUrl?.startsWith('http') ? painting.imageUrl : `${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`)
           }
         />
         <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

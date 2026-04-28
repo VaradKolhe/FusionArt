@@ -87,11 +87,11 @@ const Auction = () => {
               {painting.imageUrl && (
                 <div className="relative overflow-hidden h-1/2 rounded-t-md group">
                   <img
-                    src={`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`}
+                    src={painting.imageUrl?.startsWith('http') ? painting.imageUrl : `${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`}
                     alt={painting.title}
                     className="w-full h-80 object-cover cursor-pointer transition-transform duration-300 group-hover:scale-105"
                     onClick={() =>
-                      setFullscreenImage(`${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`)
+                      setFullscreenImage(painting.imageUrl?.startsWith('http') ? painting.imageUrl : `${import.meta.env.VITE_CDN_URL || '/api'}${painting.imageUrl}`)
                     }
                   />
 

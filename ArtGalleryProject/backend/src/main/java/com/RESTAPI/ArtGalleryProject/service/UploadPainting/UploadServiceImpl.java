@@ -66,9 +66,12 @@ public class UploadServiceImpl implements UploadService {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
             
-            imageUrl = (cdnUrl != null && !cdnUrl.isEmpty()) 
-                       ? cdnUrl + "/" + fileName 
-                       : "/" + fileName; // Default to key if no CDN
+            // Construct absolute URL for S3/CDN
+            if (cdnUrl != null && !cdnUrl.isEmpty()) {
+                imageUrl = cdnUrl.endsWith("/") ? cdnUrl + fileName : cdnUrl + "/" + fileName;
+            } else {
+                imageUrl = String.format("https://%s.s3.amazonaws.com/%s", bucketName, fileName);
+            }
         } else {
             logger.info("Uploading to local path: {}", path);
             String filepath = path + "/" + fileName;

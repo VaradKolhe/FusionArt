@@ -170,7 +170,7 @@ public class BidServiceImpl implements BidService {
 
 	@Transactional(isolation = Isolation.SERIALIZABLE)
 	@Override
-	public synchronized String auctionEnds() throws IOException, DocumentException, MessagingException {
+	public String auctionEnds() throws IOException, DocumentException, MessagingException {
 		logger.info("auctionEnds started.");
 
 		// get all locked paintings.

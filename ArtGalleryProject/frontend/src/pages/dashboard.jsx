@@ -168,7 +168,7 @@ const Dashboard = () => {
 
   //     <div className="w-full md:w-1/2 h-64 md:h-full">
   //       <img
-  //         src={`${import.meta.env.VITE_CDN_URL || '/api'}${data.imageUrl}`}
+  //         src={data.imageUrl?.startsWith('http') ? data.imageUrl : `${import.meta.env.VITE_CDN_URL || '/api'}${data.imageUrl}`}
   //         alt={data.title}
   //         className="w-full h-full object-cover"
   //       />
@@ -204,7 +204,7 @@ const Dashboard = () => {
         {/* Image Section */}
         <div className="relative w-full md:w-1/2 h-[890px] md:h-auto">
           <img
-            src={`${import.meta.env.VITE_CDN_URL || '/api'}${data.imageUrl}`}
+            src={data.imageUrl?.startsWith('http') ? data.imageUrl : `${import.meta.env.VITE_CDN_URL || '/api'}${data.imageUrl}`}
             alt={data.title}
             className="w-full h-full object-cover"
           />
@@ -272,7 +272,7 @@ const Dashboard = () => {
                 className="flex hover:scale-105 bg-[#f8f5f0] duration-500 hover:shadow-2xl hover:shadow-black rounded-2xl cursor-pointer gap-4"
               >
                 <img
-                  src={`${import.meta.env.VITE_CDN_URL || '/api'}${auction.imageUrl}`}
+                  src={auction.imageUrl?.startsWith('http') ? auction.imageUrl : `${import.meta.env.VITE_CDN_URL || '/api'}${auction.imageUrl}`}
                   alt={auction.title}
                   className="w-32 h-32 object-cover rounded-l-2xl"
                 />
