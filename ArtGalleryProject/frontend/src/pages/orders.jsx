@@ -30,9 +30,6 @@ const Orders = () => {
 
     if (amountParam) setAmount(amountParam);
     if (itemParam) setItem(itemParam);
-    
-    // Preload script when on orders page
-    loadRazorpayScript();
   }, [searchParams]);
 
   const handlePayment = async (e) => {
