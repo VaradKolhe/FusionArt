@@ -62,7 +62,7 @@ Resources:
               Service: [codebuild.amazonaws.com]
             Action: ['sts:AssumeRole']
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AdministratorAccess # For student project speed, tighten in production
+        - arn:aws:iam::aws:policy/AdministratorAccess
 
   CodeDeployRole:
     Type: AWS::IAM::Role

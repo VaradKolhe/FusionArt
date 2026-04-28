@@ -68,7 +68,7 @@ server:
 
 # Frontend Configuration
 frontend:
-  url: ${CDN_URL:http://localhost:5173}
+  url: ${FRONTEND_URL:http://localhost:5173}
 
 # Application Specific Configurations
 app:
@@ -77,7 +77,7 @@ app:
   image:
     path: ${IMAGE_PATH:image}
     s3-bucket: ${S3_BUCKET_IMAGES:}
-    cdn-url: ${CDN_URL:}
+    cdn-url: ${IMAGE_CDN_URL:}
   sqs:
     notification-queue: ${SQS_QUEUE_NOTIFICATIONS:}
 

@@ -112,6 +112,13 @@ Resources:
             ResponsePagePath: /index.html
             ErrorCachingMinTTL: 0
 
+  FrontendUrlParam:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /config/FusionArt/FRONTEND_URL
+      Type: String
+      Value: !Sub "https://${CloudFrontDistribution.DomainName}"
+
 Outputs:
   CloudFrontDomainName:
     Value: !GetAtt CloudFrontDistribution.DomainName
