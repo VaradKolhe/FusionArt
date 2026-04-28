@@ -67,6 +67,17 @@ Resources:
           - PathPattern: /api/*
             TargetOriginId: APIOrigin
             ViewerProtocolPolicy: allow-all
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
             ForwardedValues:
               QueryString: true
               Headers:
