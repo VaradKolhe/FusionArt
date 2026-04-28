@@ -65,7 +65,7 @@ const Orders = () => {
         name: "Fusion Art",
         description: `Order for ${item || "Art"}`,
         order_id: order.razorpayOrderId,
-        callback_url: `${axiosInstance.defaults.baseURL}/paymentCallback`,
+        callback_url: new URL(`${axiosInstance.defaults.baseURL}/paymentCallback`, window.location.origin).href,
         prefill: {
           name: order.name,
           email: order.email,

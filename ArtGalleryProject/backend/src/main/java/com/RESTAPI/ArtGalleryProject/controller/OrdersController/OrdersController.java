@@ -34,6 +34,9 @@ public class OrdersController {
 	@Autowired
 	private OrderService orderService;
 
+	@org.springframework.beans.factory.annotation.Value("${frontend.url:http://localhost:5173}")
+	private String frontendUrl;
+
 	@PostMapping(value = "/createOrder", produces = "application/json")
 	@ResponseBody
 	public ResponseEntity<?> createOrder(@RequestBody OrderRequest request) throws RazorpayException {
@@ -47,7 +50,7 @@ public class OrdersController {
 	public String paymentCallback(@RequestParam Map<String, String> response) {
 		orderService.updateStatusPayment(response);
 		logger.info("paymentCallback finished.");
-		return "redirect:http://localhost:5173/payment-success";
+		return "redirect:" + frontendUrl + "/payment-success";
 	}
 
 	@PostMapping("/paymentCallbackCodOrWallet")

@@ -66,6 +66,10 @@ server:
   servlet:
     context-path: /api
 
+# Frontend Configuration
+frontend:
+  url: ${CDN_URL:http://localhost:5173}
+
 # Application Specific Configurations
 app:
   jwt:
