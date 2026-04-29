@@ -65,7 +65,7 @@ Resources:
     Properties:
       LaunchTemplateData:
         ImageId: !Ref LatestAmiId
-        InstanceType: t3.micro
+        InstanceType: t3.small
         IamInstanceProfile:
           Name: !Ref EC2InstanceProfile
         NetworkInterfaces:
@@ -79,6 +79,13 @@ Resources:
             
             exec > >(tee /var/log/fusionart-userdata.log) 2>&1
             set -xeuo pipefail
+            
+            # Create 1GB Swap File for extra stability
+            fallocate -l 1G /swapfile
+            chmod 600 /swapfile
+            mkswap /swapfile
+            swapon /swapfile
+            echo '/swapfile none swap sw 0 0' >> /etc/fstab
             
             date
             cat /etc/os-release || true
