@@ -72,5 +72,9 @@ public class User {
     @OneToMany(mappedBy = "buyer")
     @JsonManagedReference(value = "user-bids")
     private List<Bid> bids;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "user-transactions")
+    private List<Transactions> transactions;
 }
 

@@ -36,6 +36,8 @@ import com.RESTAPI.ArtGalleryProject.repository.UserRepo;
 import com.RESTAPI.ArtGalleryProject.repository.WalletRepo;
 import com.RESTAPI.ArtGalleryProject.service.OrderService.EmailService;
 import com.RESTAPI.ArtGalleryProject.service.OrderService.PdfService;
+import com.RESTAPI.ArtGalleryProject.Enum.TransactionType;
+import com.RESTAPI.ArtGalleryProject.service.OrderService.TransactionService;
 import com.RESTAPI.ArtGalleryProject.service.WalletService.WalletService;
 import com.lowagie.text.DocumentException;
 
@@ -65,6 +67,8 @@ public class BidServiceImpl implements BidService {
 	private EmailService emailService;
 	@Autowired
 	private WalletService walletService;
+	@Autowired
+	private TransactionService transactionService;
 
 	@Value("${app.image.path:image}")
 	private String imageDirectory;
@@ -134,6 +138,8 @@ public class BidServiceImpl implements BidService {
 				Wallet prevWallet = prevBid.getBuyer().getWallet();
 				prevWallet.setBalance(prevWallet.getBalance() + prevBid.getBidAmount());
 				walletRepo.save(prevWallet);
+				
+				transactionService.createTransaction(prevBid.getBuyer(), TransactionType.ADD_FUNDS, prevBid.getBidAmount(), painting);
 				logger.info("amount is refunded");
 			}
 
@@ -209,6 +215,9 @@ public class BidServiceImpl implements BidService {
 					ordersRepo.save(order);
 
 					walletService.incrementBalanceByEmail(sellerLogin.getEmail(), bid.getBidAmount());
+
+					transactionService.createTransaction(user, TransactionType.PURCHASE, bid.getBidAmount(), painting);
+					transactionService.createTransaction(painting.getSeller(), TransactionType.SOLD, bid.getBidAmount(), painting);
 
 					String subject = "🎨 Your Fusion Art Auction Confirmation (#" + order.getOrderId() + ")";
 					

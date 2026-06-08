@@ -12,3 +12,7 @@
 /ArtGalleryProject/appspec_for_head.yml
 /ArtGalleryProject/buildspec_for_head.yml
 ArtGalleryProject/image.png
+
+# Ignore legacy codebase and docs to prevent git mmap errors
+/ArtGalleryProject_copy/
+/project_docs/

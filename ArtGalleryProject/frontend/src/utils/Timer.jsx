@@ -12,8 +12,8 @@ const Timer = ({ setAuctionLive }) => {
       const currentDay = now.getDay() === 0 ? 7 : now.getDay();
 
       const auctionStart = new Date(now);
-      auctionStart.setDate(now.getDate() - currentDay + 4); 
-      auctionStart.setHours(11, 0, 0, 0);
+      auctionStart.setDate(now.getDate() - currentDay + 1); 
+      auctionStart.setHours(9, 0, 0, 0);
 
       const auctionEndCheck = new Date(auctionStart);
       auctionEndCheck.setDate(auctionStart.getDate() + 2);

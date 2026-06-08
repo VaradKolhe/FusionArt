@@ -16,6 +16,7 @@ import com.RESTAPI.ArtGalleryProject.Entity.LoginCredentials;
 import com.RESTAPI.ArtGalleryProject.Entity.Orders;
 import com.RESTAPI.ArtGalleryProject.Entity.Painting;
 import com.RESTAPI.ArtGalleryProject.Entity.User;
+import com.RESTAPI.ArtGalleryProject.Enum.TransactionType;
 import com.RESTAPI.ArtGalleryProject.repository.LoginCredRepo;
 import com.RESTAPI.ArtGalleryProject.repository.OrdersRepo;
 import com.RESTAPI.ArtGalleryProject.repository.PaintingRepo;
@@ -33,20 +34,22 @@ import jakarta.transaction.Transactional;
 @Service
 public class OrderServiceImpl implements OrderService {
 
-	private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+        private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-	@Autowired
-	private OrdersRepo ordersRepository;
-	@Autowired
-	private PaintingRepo paintingRepo;
-	@Autowired
-	private UserRepo userRepo;
-	@Autowired
-	private LoginCredRepo loginCredRepo;
-	@Autowired
-	private WalletService walletService;
-	@Autowired
-	private AwsSqsService sqsService;
+        @Autowired
+        private OrdersRepo ordersRepository;
+        @Autowired
+        private PaintingRepo paintingRepo;
+        @Autowired
+        private UserRepo userRepo;
+        @Autowired
+        private LoginCredRepo loginCredRepo;
+        @Autowired
+        private WalletService walletService;
+        @Autowired
+        private AwsSqsService sqsService;
+        @Autowired
+        private TransactionService transactionService;
 
 	@Value("${razorpay.key.id}")
 	private String razorpayId;
@@ -116,8 +119,13 @@ public class OrderServiceImpl implements OrderService {
 			try {
 				walletService.incrementBalanceByEmail(order.getEmail(), order.getAmount());
 				logger.info("Wallet balance incremented for email: {}", order.getEmail());
+
+				User user = loginCredRepo.findById(order.getEmail())
+						.orElseThrow(() -> new RuntimeException("No Account found with email."))
+						.getUser();
+				transactionService.createTransaction(user, TransactionType.ADD_FUNDS, order.getAmount());
 			} catch (Exception e) {
-				logger.error("Error incrementing wallet balance: {}", e.getMessage());
+				logger.error("Error incrementing wallet balance or creating transaction: {}", e.getMessage());
 			}
 		}
 
@@ -178,6 +186,9 @@ public class OrderServiceImpl implements OrderService {
 			walletService.decrementBalanceByEmail(email, paintingPrice);
 			// Increment wallet balance of seller
 			walletService.incrementBalanceByEmail(sellerLogin.getEmail(), amount);
+
+			transactionService.createTransaction(buyer, TransactionType.PURCHASE, amount, painting);
+			transactionService.createTransaction(painting.getSeller(), TransactionType.SOLD, amount, painting);
 
 			// Create order record
 			Orders order = new Orders();

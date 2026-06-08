@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -62,4 +63,8 @@ public class Painting {
 	@OneToMany(mappedBy = "painting")
 	@JsonManagedReference(value = "painting-bids")
 	private List<Bid> bids;
-}
+
+	@OneToMany(mappedBy = "painting", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference(value = "painting-transactions")
+	private List<Transactions> transactions;
+	}
