@@ -1,0 +1,68 @@
+# ==============================================================================
+# Render Blueprint — FusionArt Backend
+# Deploy as a Docker Web Service on Render free tier
+# Docs: https://render.com/docs/blueprint-spec
+# ==============================================================================
+
+services:
+  - type: web
+    name: fusionart-backend
+    runtime: docker
+    dockerfilePath: ./ArtGalleryProject/backend/Dockerfile
+    dockerContext: ./ArtGalleryProject/backend
+    plan: free                   # Free tier: 512 MB RAM, spins down after 15 min idle
+    region: singapore            # Closest to ap-south-1; change to oregon if preferred
+
+    # Render injects PORT automatically; Spring Boot reads ${PORT:8085}
+    healthCheckPath: /api/actuator/health
+
+    envVars:
+      # ── Database (fill in after provisioning from TiDB / Clever Cloud) ──────
+      - key: DB_URL
+        value: jdbc:mysql://<your-db-host>:<port>/<dbname>?useSSL=true&requireSSL=true&serverTimezone=UTC
+      - key: DB_USERNAME
+        sync: false              # Set in Render dashboard (secret)
+      - key: DB_PASSWORD
+        sync: false              # Set in Render dashboard (secret)
+      - key: DDL_AUTO
+        value: update            # Use 'validate' after first deploy stabilises schema
+
+      # ── Email ──────────────────────────────────────────────────────────────
+      - key: EMAIL_USERNAME
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+
+      # ── Razorpay ──────────────────────────────────────────────────────────
+      - key: RAZOR_PAY_KEY
+        sync: false
+      - key: RAZOR_PAY_SECRET
+        sync: false
+
+      # ── JWT ───────────────────────────────────────────────────────────────
+      - key: JWT_SECRET
+        sync: false              # Set a long random string in Render dashboard
+
+      # ── Frontend URL (CORS) ───────────────────────────────────────────────
+      - key: FRONTEND_URL
+        value: https://your-app.vercel.app   # Replace after Vercel deploy
+
+      # ── Cache: off on free tier (no Redis) ───────────────────────────────
+      - key: CACHE_TYPE
+        value: none
+      - key: HEALTH_CHECK_REDIS
+        value: "false"
+      - key: HEALTH_CHECK_SQS
+        value: "false"
+
+      # ── AWS: disabled unless you want S3/SQS ─────────────────────────────
+      - key: AWS_SECRETS_MANAGER_ENABLED
+        value: "false"
+
+      # ── Logging ───────────────────────────────────────────────────────────
+      - key: SHOW_SQL
+        value: "false"
+      - key: LOG_LEVEL_SPRING
+        value: WARN
+      - key: LOG_LEVEL_APP
+        value: INFO

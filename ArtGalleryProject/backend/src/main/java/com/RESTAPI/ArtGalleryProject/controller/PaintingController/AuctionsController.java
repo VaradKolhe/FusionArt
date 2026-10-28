@@ -54,12 +54,8 @@ public class AuctionsController {
 	@GetMapping("/live")
 	public ResponseEntity<?> auctionIsLive() {
 		try {
-			if (service.isAnyAuctionLive()) {
-				return new ResponseEntity<>(Map.of("message", "Auction is already live."), HttpStatus.OK);
-			} else {
-				service.auctionStarts();
-				return new ResponseEntity<>(Map.of("message", "Auction is now live."), HttpStatus.OK);
-			}
+			String result = service.auctionStarts();
+			return new ResponseEntity<>(Map.of("message", result), HttpStatus.OK);
 		} catch (Exception e) {
 			logger.error("Error starting auction", e);
 			return new ResponseEntity<>("Unexpected Error", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -69,11 +65,11 @@ public class AuctionsController {
 	@GetMapping("/upcoming")
 	public ResponseEntity<?> auctionIsNotLive() {
 		try {
-			if (!service.isAnyAuctionLive()) {
-				return new ResponseEntity<>(Map.of("message", "Auction is already upcoming."), HttpStatus.OK);
+			if (service.isAuctionPeriod()) {
+				return new ResponseEntity<>(Map.of("message", "Auction is still in progress."), HttpStatus.OK);
 			} else {
-				service.auctionEnds();
-				return new ResponseEntity<>(Map.of("message", "Auction has now ended."), HttpStatus.OK);
+				String result = service.auctionEnds();
+				return new ResponseEntity<>(Map.of("message", result), HttpStatus.OK);
 			}
 		} catch (Exception e) {
 			logger.error("Error ending auction", e);

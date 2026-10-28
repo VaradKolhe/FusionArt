@@ -3,8 +3,10 @@ package com.RESTAPI.ArtGalleryProject.service.Auction;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Year;
+import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,8 +91,13 @@ public class BidServiceImpl implements BidService {
 				.orElseThrow(() -> new RuntimeException("Painting not found"));
 
 		if (!painting.isAuctionLive()) {
-			logger.info("Auction ended cannot place bid for userId: {}.", buyer.getUserId());
-			throw new RuntimeException("Auction has Ended");
+			if (isAuctionPeriod()) {
+				painting.setAuctionLive(true);
+				paintingRepo.save(painting);
+			} else {
+				logger.info("Auction ended cannot place bid for userId: {}.", buyer.getUserId());
+				throw new RuntimeException("Auction has Ended");
+			}
 		}
 
 		Wallet buyerWallet = buyer.getWallet();
@@ -177,6 +184,10 @@ public class BidServiceImpl implements BidService {
 	@Transactional(isolation = Isolation.SERIALIZABLE)
 	@Override
 	public String auctionEnds() throws IOException, DocumentException, MessagingException {
+		if (isAuctionPeriod()) {
+			logger.warn("Attempted to end auction during auction period.");
+			return "Auction is still in progress according to server time.";
+		}
 		logger.info("auctionEnds started.");
 
 		// get all locked paintings.
@@ -495,6 +506,10 @@ public class BidServiceImpl implements BidService {
 
 	@Override
 	public String auctionStarts() {
+		if (!isAuctionPeriod()) {
+			logger.warn("Attempted to start auction outside auction period.");
+			return "Not yet time for auction to start according to server time.";
+		}
 		try {
 			logger.info("auctionStarts started.");
 
@@ -510,8 +525,19 @@ public class BidServiceImpl implements BidService {
 			logger.error("Some error occured");
 			throw new RuntimeException("Some error occured");
 		}
-		
-		
+	}
+
+	@Override
+	public boolean isAuctionPeriod() {
+		LocalDateTime now = LocalDateTime.now();
+		int dayOfWeek = now.getDayOfWeek().getValue(); // 1=Mon, ..., 7=Sun
+
+		// Auction starts Monday 9 AM
+		LocalDateTime start = now.with(LocalTime.of(9, 0, 0, 0)).minusDays(dayOfWeek - 1);
+		// Auction ends 2 days later (Wednesday 9 AM)
+		LocalDateTime end = start.plusDays(2);
+
+		return !now.isBefore(start) && now.isBefore(end);
 	}
 
 }

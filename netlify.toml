@@ -1,0 +1,23 @@
+# Netlify build & routing config for FusionArt frontend
+[build]
+  base    = "ArtGalleryProject/frontend"
+  command = "npm run build"
+  publish = "ArtGalleryProject/frontend/dist"
+
+# SPA fallback: route all paths to index.html
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# Cache busted static assets (Vite adds content hash to filenames)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Never cache the entry point
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

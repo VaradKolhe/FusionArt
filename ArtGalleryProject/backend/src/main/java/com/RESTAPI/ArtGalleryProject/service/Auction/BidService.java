@@ -12,4 +12,5 @@ public interface BidService {
     String auctionEnds() throws IOException, DocumentException, MessagingException;
     String auctionStarts();
     boolean isAnyAuctionLive();
+    boolean isAuctionPeriod();
 }

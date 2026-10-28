@@ -1,0 +1,31 @@
+# Exclude compiled output — Docker builds from source inside container
+target/
+
+# IDE & editor artifacts
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Secrets & local config — must be injected via Render env vars
+.env
+
+# Runtime-generated directories
+logs/
+image/
+
+# Git metadata
+.git/
+.gitignore
+.gitattributes
+
+# Docs
+HELP.md
+README.md
+*.md
+
+# Node leftovers (shouldn't be here, but guard anyway)
+node_modules/
+package.json
+package-lock.json

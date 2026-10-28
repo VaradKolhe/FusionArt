@@ -45,7 +45,7 @@ spring:
 
   # Caching (Redis/ElastiCache)
   cache:
-    type: redis
+    type: ${CACHE_TYPE:none}
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -56,8 +56,12 @@ spring:
     aws:
       region:
         static: ${AWS_REGION:ap-south-1}
+      # Disable EC2 instance-profile credential lookup to prevent startup
+      # timeouts when running outside AWS (e.g. Render free tier)
+      credentials:
+        instance-profile: false
       secrets-manager:
-        enabled: true
+        enabled: ${AWS_SECRETS_MANAGER_ENABLED:false}
         # Match the secret name in 08-Secrets.yaml
         name: FusionArt
 
@@ -117,8 +121,8 @@ management:
     db:
       enabled: ${HEALTH_CHECK_DB:true}
     redis:
-      enabled: ${HEALTH_CHECK_REDIS:true}
+      enabled: ${HEALTH_CHECK_REDIS:false}
     sqs:
-      enabled: ${HEALTH_CHECK_SQS:true}
+      enabled: ${HEALTH_CHECK_SQS:false}
     mail:
       enabled: false
