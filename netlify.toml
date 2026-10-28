@@ -2,7 +2,7 @@
 [build]
   base    = "ArtGalleryProject/frontend"
   command = "npm run build"
-  publish = "ArtGalleryProject/frontend/dist"
+  publish = "dist"
 
 # SPA fallback: route all paths to index.html
 [[redirects]]
