@@ -38,6 +38,13 @@ const Shop = () => {
 
   // Fetch user profile
   useEffect(() => {
+    // The shop is public, but the profile endpoint requires a JWT. Avoid making
+    // an unauthorized request for guests whenever this page mounts.
+    if (!token) {
+      setProfile(null);
+      return;
+    }
+
     axiosInstance
       .get("/user/profile")
       .then((res) => {

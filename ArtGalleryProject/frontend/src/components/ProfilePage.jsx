@@ -83,6 +83,13 @@ const ProfilePage = () => {
   );
 
   useEffect(() => {
+    // Effects run before the conditional render below. Do not call this
+    // protected endpoint when a guest reaches the profile route.
+    if (!token) {
+      setProfile(null);
+      return;
+    }
+
     axiosInstance
       .get("/user/profile")
       .then((res) => {
@@ -93,7 +100,7 @@ const ProfilePage = () => {
         console.error("Failed to load profile:", err);
         setProfile(null);
       });
-  }, [axiosInstance, token]);
+  }, [token]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
