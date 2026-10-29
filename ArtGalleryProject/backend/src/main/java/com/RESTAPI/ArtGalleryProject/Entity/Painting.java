@@ -34,6 +34,10 @@ public class Painting {
 	@Column(length = 2048, nullable = false)
 	private String imageUrl;
 
+	/** Null for legacy local/S3 artwork records. */
+	@Column(length = 512)
+	private String cloudinaryPublicId;
+
 	private String title;
 	private String description;
 	private double length;

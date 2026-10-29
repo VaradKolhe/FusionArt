@@ -17,6 +17,10 @@ public class UnverifiedPainting {
     @Column(length = 2048, nullable = false)
     private String imageUrl;
 
+    /** Null for submissions created before Cloudinary was enabled. */
+    @Column(length = 512)
+    private String cloudinaryPublicId;
+
     private String title;
     private String description;
     private double length;

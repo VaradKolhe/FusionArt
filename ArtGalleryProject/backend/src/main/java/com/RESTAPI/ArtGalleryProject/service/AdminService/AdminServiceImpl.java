@@ -17,6 +17,7 @@ import com.RESTAPI.ArtGalleryProject.repository.UserRepo;
 import com.RESTAPI.ArtGalleryProject.repository.WithdrawalRequestRepo;
 import com.RESTAPI.ArtGalleryProject.service.OrderService.EmailService;
 import com.RESTAPI.ArtGalleryProject.service.WalletService.WalletService;
+import com.RESTAPI.ArtGalleryProject.service.Cloudinary.CloudinaryImageService;
 
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -35,6 +36,8 @@ public class AdminServiceImpl implements AdminService {
     private WalletService walletService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private CloudinaryImageService cloudinaryImageService;
 
     @Override
     public List<UnverifiedPainting> getPendingPaintings() {
@@ -69,6 +72,7 @@ public class AdminServiceImpl implements AdminService {
         painting.setStartingPrice(unverified.getStartingPrice());
         painting.setFinalPrice(0.0); // Set default final price
         painting.setImageUrl(unverified.getImageUrl());
+        painting.setCloudinaryPublicId(unverified.getCloudinaryPublicId());
         painting.setForAuction(unverified.isForAuction());
         painting.setSeller(seller);
         painting.setSold(false);
@@ -87,11 +91,15 @@ public class AdminServiceImpl implements AdminService {
     public String rejectPainting(Long id) {
         logger.info("rejectPainting started for painting ID: {}", id);
 
-        if (!unverifiedRepo.existsById(id)) {
+        var optional = unverifiedRepo.findById(id);
+        if (optional.isEmpty()) {
             logger.warn("Painting with ID {} not found during rejection.", id);
             return "Painting not found";
         }
 
+        // Do this before removing metadata so a Cloudinary failure is retryable:
+        // the pending submission remains available for the administrator to retry.
+        cloudinaryImageService.deleteArtwork(optional.get().getCloudinaryPublicId());
         unverifiedRepo.deleteById(id);
         logger.info("Painting with ID {} successfully rejected and deleted.", id);
         return "Painting rejected and deleted.";

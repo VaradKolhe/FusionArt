@@ -85,6 +85,13 @@ app:
   sqs:
     notification-queue: ${SQS_QUEUE_NOTIFICATIONS:}
 
+# Cloudinary credentials are supplied only by the runtime environment.
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+  api-key: ${CLOUDINARY_API_KEY:}
+  api-secret: ${CLOUDINARY_API_SECRET:}
+  folder: ${CLOUDINARY_FOLDER:fusionart/artworks}
+
 # Razorpay
 razorpay:
   key:

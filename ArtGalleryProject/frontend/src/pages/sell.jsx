@@ -7,6 +7,7 @@ import axiosInstance from "../axiosInstance";
 const Sell = () => {
   const [step, setStep] = useState(1);
   const [sellingMode, setSellingMode] = useState(""); // "auction" or "store"
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -27,9 +28,14 @@ const Sell = () => {
       if (!file) return;
 
       const maxSizeInBytes = 5 * 1024 * 1024; // 5MB
+      const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
 
-      if (file.size > maxSizeInBytes) {
-        alert("File size exceeds 5MB. Please choose a smaller file.");
+      if (file.size > maxSizeInBytes || !allowedTypes.includes(file.type)) {
+        alert(
+          file.size > maxSizeInBytes
+            ? "File size exceeds 5MB. Please choose a smaller file."
+            : "Choose a JPEG, PNG, or GIF image."
+        );
 
         e.target.value = null;
 
@@ -53,6 +59,7 @@ const Sell = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting || !formData.file) return;
     const data = new FormData();
     data.append("file", formData.file);
     data.append("title", formData.title);
@@ -67,6 +74,7 @@ const Sell = () => {
     }
 
     try {
+      setIsSubmitting(true);
       const url = "/upload-painting";
       await axiosInstance.post(url, data, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -74,8 +82,10 @@ const Sell = () => {
       alert("Painting uploaded successfully");
       setStep(4);
     } catch (err) {
-      alert("Failed to upload painting");
+      alert(err.response?.data?.message || err.response?.data || "Failed to upload painting");
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -228,13 +238,13 @@ const Sell = () => {
             <form onSubmit={handleSubmit} className="space-y-6 text-[#5a3c28]">
               <div>
                 <label className="block font-medium mb-1">
-                  Painting Image: &lt; 5Mb
+                  Painting Image (JPEG, PNG, or GIF; up to 5 MB)
                 </label>
                 <input
                   type="file"
                   name="file"
                   required
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/gif"
                   onChange={handleChange}
                   className="w-full border border-gray-300 p-2 sm:p-3 rounded-md"
                 />
@@ -326,9 +336,10 @@ const Sell = () => {
               )}
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="bg-[#5a3c28] text-white px-6 py-3 rounded-lg text-base hover:bg-[#3d281a] transition duration-300 w-full sm:w-auto"
               >
-                Submit Application
+                {isSubmitting ? "Uploading image..." : "Submit Application"}
               </button>
             </form>
           </motion.div>
